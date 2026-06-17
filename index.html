@@ -1,423 +1,640 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Jeu de Football ⚽</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIFA World Cup 2026 ⚽</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #050d1a;
+  color: #fff;
+  min-height: 100vh;
+  overflow: hidden;
+}
 
-    body {
-      background: #1a7a1a;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      font-family: Arial, sans-serif;
-      color: white;
-    }
+/* ── SCREENS ── */
+.screen { display:none; position:fixed; inset:0; }
+.screen.active { display:flex; flex-direction:column; }
 
-    h1 {
-      font-size: 2.2em;
-      margin-bottom: 10px;
-      text-shadow: 2px 2px black;
-    }
+/* ── SCREEN 1: TEAM SELECT ── */
+#s-team {
+  background: radial-gradient(ellipse at center, #0d2137 0%, #050d1a 100%);
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+}
+.fifa-title { font-size: 0.85rem; letter-spacing: 4px; color: #FFD700; opacity:.7; }
+.fifa-main  { font-size: 2.4rem; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 40px rgba(255,215,0,.4); }
+.team-grid  { display: flex; gap: 20px; }
+.team-card  {
+  width: 160px; padding: 28px 16px; border-radius: 16px;
+  background: rgba(255,255,255,.06);
+  border: 2px solid rgba(255,255,255,.12);
+  cursor: pointer; text-align: center;
+  transition: transform .2s, border-color .2s, box-shadow .2s;
+}
+.team-card:hover { transform: translateY(-8px); border-color: #FFD700; box-shadow: 0 16px 40px rgba(255,215,0,.25); }
+.team-card .flag { font-size: 3.5rem; }
+.team-card .name { font-size: 1rem; font-weight: 700; margin-top: 10px; }
+.team-card .group { font-size: .72rem; color: rgba(255,255,255,.5); margin-top: 4px; }
+.nav-links { display: flex; gap: 12px; }
+.nav-btn {
+  padding: 9px 20px; border-radius: 24px; text-decoration: none;
+  font-size: .82rem; font-weight: 600;
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.8); border: 1px solid rgba(255,255,255,.15);
+  transition: background .2s;
+}
+.nav-btn:hover { background: rgba(255,255,255,.18); }
 
-    #infos {
-      display: flex;
-      gap: 30px;
-      font-size: 1.3em;
-      margin-bottom: 12px;
-      background: rgba(0,0,0,0.4);
-      padding: 8px 24px;
-      border-radius: 10px;
-    }
+/* ── SCREEN 2: PLAYER SELECT ── */
+#s-player {
+  background: #080f1d;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  overflow-y: auto;
+}
+#s-player h2 { font-size: 1.5rem; font-weight: 900; }
+#s-player .sub { font-size: .8rem; color: rgba(255,255,255,.5); }
+.player-grid { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; max-width: 680px; }
+.p-card {
+  width: 130px; border-radius: 14px; overflow: hidden;
+  background: rgba(255,255,255,.05); border: 2px solid rgba(255,255,255,.1);
+  cursor: pointer; transition: transform .2s, border-color .2s;
+  text-align: center;
+}
+.p-card:hover { transform: translateY(-6px); border-color: #FFD700; }
+.p-avatar {
+  width: 100%; padding: 20px 0 14px;
+  font-size: 2.2rem; font-weight: 900;
+  letter-spacing: -1px;
+}
+.p-name { font-size: .78rem; font-weight: 700; padding: 0 6px; }
+.p-info { font-size: .68rem; color: rgba(255,255,255,.55); padding: 4px 6px 10px; }
+.pos-badge {
+  display: inline-block; padding: 1px 7px; border-radius: 8px;
+  font-size: .62rem; font-weight: 700; margin: 4px 0;
+}
+.pos-ATT { background:#E74C3C; }
+.pos-MID { background:#27AE60; }
+.pos-DEF { background:#3498DB; }
+.pos-GK  { background:#FF6B35; }
+.back-btn {
+  padding: 8px 22px; border-radius: 20px; border: 1px solid rgba(255,255,255,.2);
+  background: none; color: rgba(255,255,255,.7); cursor: pointer; font-size: .85rem;
+}
+.back-btn:hover { background: rgba(255,255,255,.1); }
 
-    #tirs-restants { color: #ffdd00; }
+/* ── SCREEN 3: GAME ── */
+#s-game { background: #040b14; flex-direction: column; }
 
-    #terrain {
-      position: relative;
-      width: 500px;
-      height: 350px;
-      background: #2d9c2d;
-      border: 4px solid white;
-      border-radius: 10px;
-      overflow: hidden;
-    }
+/* HUD */
+#hud {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px; background: rgba(0,0,0,.6);
+  backdrop-filter: blur(10px); flex-shrink: 0; z-index: 10;
+}
+#hud-team { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+#hud-center { text-align: center; }
+#hud-shots { font-size: 1.2rem; letter-spacing: 2px; }
+#hud-label { font-size: .6rem; color: rgba(255,255,255,.4); letter-spacing: 2px; margin-top: 2px; }
+#hud-goals { font-size: 2rem; font-weight: 900; color: #FFD700; }
+#hud-goals-lbl { font-size: .6rem; color: rgba(255,255,255,.4); letter-spacing: 2px; text-align:right; }
 
-    /* Lignes du terrain */
-    #terrain::before {
-      content: '';
-      position: absolute;
-      left: 50%;
-      top: 0; bottom: 0;
-      width: 2px;
-      background: rgba(255,255,255,0.2);
-    }
+/* PITCH */
+#pitch {
+  flex: 1; position: relative; overflow: hidden;
+  background: radial-gradient(ellipse at 50% 120%, #1a5c1a 0%, #0f3d0f 50%, #081f08 100%);
+}
 
-    #but {
-      position: absolute;
-      top: 0; left: 150px;
-      width: 200px; height: 65px;
-      background: rgba(255,255,255,0.15);
-      border: 3px solid white;
-      border-top: none;
-    }
+/* Pitch lines */
+#pitch::before {
+  content:''; position:absolute; inset:0;
+  background:
+    linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
 
-    #gardien {
-      position: absolute;
-      top: 8px; left: 210px;
-      width: 60px; height: 60px;
-      font-size: 2.5em;
-      text-align: center;
-      line-height: 60px;
-    }
+/* Goal */
+#goal {
+  position:absolute; top:20px; left:50%; transform:translateX(-50%);
+  width:260px; height:100px;
+  border: 5px solid rgba(255,255,255,.9);
+  border-bottom: none;
+  background: repeating-linear-gradient(
+    90deg, rgba(255,255,255,.04) 0px, rgba(255,255,255,.04) 18px, transparent 18px, transparent 36px
+  ),
+  repeating-linear-gradient(
+    0deg, rgba(255,255,255,.04) 0px, rgba(255,255,255,.04) 18px, transparent 18px, transparent 36px
+  );
+  box-shadow: 0 0 30px rgba(255,255,255,.1), inset 0 0 20px rgba(0,0,0,.5);
+}
 
-    #ballon {
-      position: absolute;
-      bottom: 30px; left: 230px;
-      font-size: 2em;
-      width: 40px; height: 40px;
-      text-align: center;
-      line-height: 40px;
-    }
+/* Penalty box */
+#pbox {
+  position:absolute; top:10px; left:50%; transform:translateX(-50%);
+  width:380px; height:200px;
+  border: 2px solid rgba(255,255,255,.2); border-top:none;
+}
 
-    #fleche {
-      position: absolute;
-      bottom: 75px; left: 238px;
-      font-size: 1.5em;
-    }
+/* Aim crosshair */
+#aim {
+  position:absolute; top:95px; left:50%; transform:translateX(-50%);
+  width:28px; height:28px;
+  border: 3px solid #FFD700; border-radius: 50%;
+  transition: left .05s;
+  box-shadow: 0 0 12px rgba(255,215,0,.6);
+}
+#aim::before, #aim::after {
+  content:''; position:absolute; background:#FFD700;
+  box-shadow: 0 0 6px rgba(255,215,0,.8);
+}
+#aim::before { width:2px; height:14px; left:10px; top:-7px; }
+#aim::after  { width:14px; height:2px; top:10px; left:-7px; }
 
-    /* Overlay pour BUT / RATÉ / FIN / VICTOIRE */
-    #overlay {
-      position: absolute;
-      inset: 0;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.55);
-      border-radius: 8px;
-    }
+/* Goalkeeper */
+#gk {
+  position:absolute; top:22px; left:50%; transform:translateX(-50%);
+  font-size:2.6rem; transition:left .08s linear;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,.6));
+}
 
-    #overlay.visible { display: flex; }
+/* Ball */
+#ball {
+  position:absolute; bottom:60px; left:50%; transform:translateX(-50%);
+  font-size:2.4rem;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,.8));
+  transition: none;
+}
 
-    #overlay-emoji { font-size: 4em; }
-    #overlay-texte {
-      font-size: 2.2em;
-      font-weight: bold;
-      text-shadow: 3px 3px black;
-      margin: 6px 0;
-    }
-    #overlay-sous {
-      font-size: 1.1em;
-      color: #ddd;
-    }
+/* Penalty spot */
+#spot {
+  position:absolute; bottom:100px; left:50%; transform:translateX(-50%);
+  width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.4);
+}
 
-    #instructions {
-      margin-top: 14px;
-      text-align: center;
-      font-size: 1em;
-      background: rgba(0,0,0,0.4);
-      padding: 8px 20px;
-      border-radius: 10px;
-    }
+/* Player card (bottom-left) */
+#player-card {
+  position:absolute; bottom:16px; left:16px;
+  background: rgba(0,0,0,.75); backdrop-filter:blur(8px);
+  border: 1px solid rgba(255,255,255,.15); border-radius: 12px;
+  padding: 10px 14px; display: flex; align-items:center; gap:10px;
+  min-width: 160px;
+}
+#pc-avatar {
+  width:40px; height:40px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.1rem; font-weight:900;
+  border: 2px solid #FFD700; flex-shrink:0;
+}
+#pc-name { font-size:.8rem; font-weight:700; }
+#pc-info { font-size:.65rem; color:rgba(255,255,255,.55); }
 
-    #instructions span { font-size: 1.3em; }
+/* Controls hint */
+#controls-hint {
+  position:absolute; bottom:16px; right:16px;
+  background:rgba(0,0,0,.7); border-radius:10px; padding:8px 12px;
+  font-size:.7rem; color:rgba(255,255,255,.5); text-align:center; line-height:1.7;
+}
 
-    #bouton-rejouer {
-      margin-top: 14px;
-      padding: 12px 30px;
-      font-size: 1.2em;
-      background: #ff6600;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      display: none;
-    }
-    #bouton-rejouer:hover { background: #ff8800; }
+/* Mobile buttons */
+#mobile-btns {
+  display:none; position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+  gap:16px;
+}
+.m-btn {
+  width:60px; height:60px; border-radius:50%; border:none;
+  font-size:1.4rem; cursor:pointer; font-weight:900;
+  background:rgba(255,255,255,.15); color:#fff;
+  backdrop-filter:blur(4px);
+  -webkit-tap-highlight-color:transparent;
+}
 
-    /* Étoiles victoire */
-    .etoile {
-      position: absolute;
-      font-size: 2em;
-      animation: tomber 1s ease-in forwards;
-      pointer-events: none;
-    }
-    @keyframes tomber {
-      from { transform: translateY(-50px) rotate(0deg); opacity: 1; }
-      to   { transform: translateY(400px) rotate(360deg); opacity: 0; }
-    }
-  </style>
+/* Flash overlay */
+#flash {
+  position:absolute; inset:0; pointer-events:none;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  opacity:0; transition:opacity .3s;
+}
+#flash.show { opacity:1; }
+#flash-msg { font-size:3.5rem; font-weight:900; text-shadow:0 4px 20px rgba(0,0,0,.5); }
+#flash-sub { font-size:1.1rem; margin-top:6px; opacity:.8; }
+
+/* End overlay */
+#end {
+  position:absolute; inset:0;
+  background:rgba(0,0,0,.85); backdrop-filter:blur(8px);
+  display:none; flex-direction:column; align-items:center; justify-content:center; gap:20px;
+}
+#end.show { display:flex; }
+#end-title { font-size:3rem; font-weight:900; }
+#end-score { font-size:1.3rem; color:rgba(255,255,255,.7); }
+.end-btn {
+  padding:12px 28px; border-radius:24px; border:none;
+  font-size:1rem; font-weight:700; cursor:pointer; transition:transform .15s;
+}
+.end-btn:hover { transform:scale(1.05); }
+#btn-replay { background:#FFD700; color:#000; }
+#btn-menu   { background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.2); }
+
+/* Stars */
+.star-fall {
+  position:absolute; top:-20px; font-size:1.4rem;
+  animation:fall 1.5s ease-in forwards;
+}
+@keyframes fall {
+  to { transform:translateY(110vh) rotate(360deg); opacity:0; }
+}
+
+@media (max-width:600px) {
+  #mobile-btns { display:flex; }
+  #controls-hint { display:none; }
+  .team-grid { flex-direction:column; align-items:center; }
+  .player-grid { gap:10px; }
+  .p-card { width:110px; }
+}
+</style>
 </head>
 <body>
 
-  <a href="players.html" style="position:fixed;top:12px;right:12px;z-index:99;background:#FFD700;color:#000;text-decoration:none;padding:8px 16px;border-radius:20px;font-weight:bold;font-size:0.9rem;box-shadow:0 3px 10px rgba(0,0,0,0.3);">⭐ Mijn Spelers</a>
-
-  <h1>⚽ Jeu de Football ⚽</h1>
-
-  <div id="infos">
-    <span>Buts : <strong id="nb-buts">0</strong></span>
-    <span id="tirs-restants">Tirs restants : <strong id="nb-tirs">5</strong></span>
-    <span>Arrêts : <strong id="nb-arrets">0</strong></span>
+<!-- SCREEN 1: TEAM SELECT -->
+<div id="s-team" class="screen active">
+  <div class="fifa-title">FIFA WORLD CUP 2026™</div>
+  <div class="fifa-main">⚽ PENALTY SHOOTOUT</div>
+  <div class="team-grid">
+    <div class="team-card" onclick="selectTeam('belgium')">
+      <div class="flag">🇧🇪</div>
+      <div class="name">Rode Duivels</div>
+      <div class="group">Groep G</div>
+    </div>
+    <div class="team-card" onclick="selectTeam('spain')">
+      <div class="flag">🇪🇸</div>
+      <div class="name">España</div>
+      <div class="group">Groep H</div>
+    </div>
   </div>
+  <div class="nav-links">
+    <a class="nav-btn" href="players.html">⭐ Statistieken</a>
+    <a class="nav-btn" href="quiz.html">🎯 Quiz</a>
+  </div>
+</div>
 
-  <div id="terrain">
-    <div id="but"></div>
-    <div id="gardien">🧤</div>
-    <div id="fleche">⬆️</div>
-    <div id="ballon">⚽</div>
+<!-- SCREEN 2: PLAYER SELECT -->
+<div id="s-player" class="screen">
+  <h2 id="ps-title">Kies je schutter</h2>
+  <div class="sub">Wie gaat de penalty nemen?</div>
+  <div id="player-grid" class="player-grid"></div>
+  <button class="back-btn" onclick="showScreen('s-team')">← Terug</button>
+</div>
 
-    <div id="overlay">
-      <div id="overlay-emoji"></div>
-      <div id="overlay-texte"></div>
-      <div id="overlay-sous"></div>
+<!-- SCREEN 3: GAME -->
+<div id="s-game" class="screen">
+  <!-- HUD -->
+  <div id="hud">
+    <div id="hud-team">
+      <span id="hud-flag"></span>
+      <span id="hud-name"></span>
+    </div>
+    <div id="hud-center">
+      <div id="hud-shots"></div>
+      <div id="hud-label">SHOTS</div>
+    </div>
+    <div>
+      <div id="hud-goals-lbl">GOALS</div>
+      <div id="hud-goals">0</div>
     </div>
   </div>
 
-  <div id="instructions">
-    <span>⬅️ ➡️</span> Viser &nbsp;|&nbsp; <span>⬆️</span> Tirer !
+  <!-- PITCH -->
+  <div id="pitch">
+    <div id="pbox"></div>
+    <div id="goal"></div>
+    <div id="gk">🧤</div>
+    <div id="aim"></div>
+    <div id="spot"></div>
+    <div id="ball">⚽</div>
+
+    <!-- Player card -->
+    <div id="player-card">
+      <div id="pc-avatar"></div>
+      <div>
+        <div id="pc-name"></div>
+        <div id="pc-info"></div>
+      </div>
+    </div>
+
+    <!-- Controls hint -->
+    <div id="controls-hint">⬅ ➡ viser<br>⬆ / ESPACE tirer</div>
+
+    <!-- Mobile buttons -->
+    <div id="mobile-btns">
+      <button class="m-btn" id="btn-left" ontouchstart="startMove(-1)" ontouchend="stopMove()">◀</button>
+      <button class="m-btn" id="btn-shoot" ontouchstart="shoot()">🦵</button>
+      <button class="m-btn" id="btn-right" ontouchstart="startMove(1)" ontouchend="stopMove()">▶</button>
+    </div>
+
+    <!-- Flash -->
+    <div id="flash">
+      <div id="flash-msg"></div>
+      <div id="flash-sub"></div>
+    </div>
+
+    <!-- End -->
+    <div id="end">
+      <div id="end-title"></div>
+      <div id="end-score"></div>
+      <div style="display:flex;gap:12px;">
+        <button class="end-btn" id="btn-replay" onclick="startGame()">🔄 Rejouer</button>
+        <button class="end-btn" id="btn-menu"   onclick="showScreen('s-team')">🏠 Menu</button>
+      </div>
+    </div>
   </div>
+</div>
 
-  <button id="bouton-rejouer" onclick="rejouer()">🔄 Rejouer !</button>
+<script>
+// ── DATA ──────────────────────────────────────────────────────────
+const SQUADS = {
+  belgium: {
+    flag:'🇧🇪', name:'Rode Duivels', color:'#CC0001',
+    players:[
+      {name:'Kevin De Bruyne',   pos:'MID', goals:26,  assists:45, flag:'🇧🇪', club:'Napoli'},
+      {name:'Romelu Lukaku',     pos:'ATT', goals:77,  assists:18, flag:'🇧🇪', club:'Napoli'},
+      {name:'Jeremy Doku',       pos:'ATT', goals:8,   assists:10, flag:'🇧🇪', club:'Man City'},
+      {name:'Leandro Trossard',  pos:'ATT', goals:16,  assists:14, flag:'🇧🇪', club:'Arsenal'},
+      {name:'Ch. De Ketelaere',  pos:'ATT', goals:11,  assists:9,  flag:'🇧🇪', club:'Atalanta'},
+      {name:'Youri Tielemans',   pos:'MID', goals:17,  assists:12, flag:'🇧🇪', club:'Aston Villa'},
+    ]
+  },
+  spain: {
+    flag:'🇪🇸', name:'España', color:'#C60B1E',
+    players:[
+      {name:'Lamine Yamal',    pos:'ATT', goals:16, assists:11, flag:'🇪🇸', club:'FC Barcelona'},
+      {name:'Ferran Torres',   pos:'ATT', goals:16, assists:6,  flag:'🇪🇸', club:'FC Barcelona'},
+      {name:'Mikel Oyarzabal', pos:'ATT', goals:14, assists:5,  flag:'🇪🇸', club:'Real Sociedad'},
+      {name:'Pedri',           pos:'MID', goals:9,  assists:9,  flag:'🇪🇸', club:'FC Barcelona'},
+      {name:'Dani Olmo',       pos:'MID', goals:8,  assists:7,  flag:'🇪🇸', club:'FC Barcelona'},
+      {name:'Rodri',           pos:'MID', goals:7,  assists:8,  flag:'🇪🇸', club:'Man City'},
+    ]
+  }
+};
 
-  <script>
-    // ── Sons avec Web Audio API (pas besoin de fichiers MP3) ──
-    const audio = new (window.AudioContext || window.webkitAudioContext)();
+// ── STATE ─────────────────────────────────────────────────────────
+let team, player, shots, goals, aimX, gkX, gkDir, gkSpeed, shooting, moveDir, moveInterval;
 
-    function jouerSon(type) {
-      const osc = audio.createOscillator();
-      const gain = audio.createGain();
-      osc.connect(gain);
-      gain.connect(audio.destination);
+// ── SCREENS ───────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
 
-      if (type === 'but') {
-        // Mélodie joyeuse : do-mi-sol-do
-        const notes = [261, 329, 392, 523];
-        notes.forEach((freq, i) => {
-          const o = audio.createOscillator();
-          const g = audio.createGain();
-          o.connect(g); g.connect(audio.destination);
-          o.frequency.value = freq;
-          o.type = 'square';
-          g.gain.setValueAtTime(0.3, audio.currentTime + i * 0.15);
-          g.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + i * 0.15 + 0.2);
-          o.start(audio.currentTime + i * 0.15);
-          o.stop(audio.currentTime + i * 0.15 + 0.2);
-        });
-      } else if (type === 'rate') {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(200, audio.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(80, audio.currentTime + 0.4);
-        gain.gain.setValueAtTime(0.3, audio.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.4);
-        osc.start(); osc.stop(audio.currentTime + 0.4);
-      } else if (type === 'victoire') {
-        // Fanfare
-        const notes = [523, 659, 784, 1046, 784, 1046];
-        notes.forEach((freq, i) => {
-          const o = audio.createOscillator();
-          const g = audio.createGain();
-          o.connect(g); g.connect(audio.destination);
-          o.frequency.value = freq;
-          o.type = 'square';
-          g.gain.setValueAtTime(0.25, audio.currentTime + i * 0.12);
-          g.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + i * 0.12 + 0.2);
-          o.start(audio.currentTime + i * 0.12);
-          o.stop(audio.currentTime + i * 0.12 + 0.3);
-        });
-      } else if (type === 'perdu') {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(300, audio.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(100, audio.currentTime + 0.8);
-        gain.gain.setValueAtTime(0.3, audio.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.8);
-        osc.start(); osc.stop(audio.currentTime + 0.8);
-      }
+// ── TEAM SELECT ───────────────────────────────────────────────────
+function selectTeam(key) {
+  team = SQUADS[key];
+  document.getElementById('ps-title').textContent = `${team.flag} ${team.name}`;
+
+  const grid = document.getElementById('player-grid');
+  grid.innerHTML = team.players.map((p,i) => `
+    <div class="p-card" onclick="selectPlayer(${i})">
+      <div class="p-avatar" style="background:${team.color}20; color:${team.color}">
+        ${initials(p.name)}
+      </div>
+      <div class="p-name">${p.name}</div>
+      <span class="pos-badge pos-${p.pos}">${posLabel(p.pos)}</span>
+      <div class="p-info">${p.goals} buts · ${p.assists} assists<br>${p.club}</div>
+    </div>
+  `).join('');
+
+  showScreen('s-player');
+}
+
+// ── PLAYER SELECT ─────────────────────────────────────────────────
+function selectPlayer(idx) {
+  player = team.players[idx];
+  setupHUD();
+  startGame();
+  showScreen('s-game');
+}
+
+function setupHUD() {
+  document.getElementById('hud-flag').textContent = team.flag;
+  document.getElementById('hud-name').textContent = team.name;
+
+  const av = document.getElementById('pc-avatar');
+  av.textContent = initials(player.name);
+  av.style.background = team.color + '33';
+  document.getElementById('pc-name').textContent = player.name;
+  document.getElementById('pc-info').textContent = `${player.flag} ${posLabel(player.pos)} · ${player.goals} buts`;
+}
+
+// ── GAME INIT ─────────────────────────────────────────────────────
+function startGame() {
+  shots = 5; goals = 0; shooting = false;
+  gkX = 0; gkDir = 1; gkSpeed = 2.5;
+  aimX = 0;
+
+  updateHUD();
+  resetBall();
+  document.getElementById('end').classList.remove('show');
+  clearFlash();
+  stopGkAnim();
+  startGkAnim();
+  startKeyLoop();
+}
+
+function resetBall() {
+  const ball = document.getElementById('ball');
+  ball.style.transition = 'none';
+  ball.style.left = '50%';
+  ball.style.bottom = '60px';
+  ball.style.transform = 'translateX(-50%)';
+  ball.style.opacity = '1';
+  shooting = false;
+}
+
+// ── GK ANIMATION ─────────────────────────────────────────────────
+let gkAnim;
+function startGkAnim() {
+  const pitch = document.getElementById('pitch');
+  const gk = document.getElementById('gk');
+  const maxX = 95;
+
+  function move() {
+    gkX += gkDir * gkSpeed;
+    if (gkX > maxX)  { gkX = maxX;  gkDir = -1; }
+    if (gkX < -maxX) { gkX = -maxX; gkDir =  1; }
+    gk.style.left = `calc(50% + ${gkX}px)`;
+    gkAnim = requestAnimationFrame(move);
+  }
+  gkAnim = requestAnimationFrame(move);
+}
+function stopGkAnim() { cancelAnimationFrame(gkAnim); }
+
+// ── AIM ───────────────────────────────────────────────────────────
+const AIM_MAX = 100;
+function moveAim(dir) {
+  if (shooting) return;
+  aimX = Math.max(-AIM_MAX, Math.min(AIM_MAX, aimX + dir * 7));
+  document.getElementById('aim').style.left = `calc(50% + ${aimX}px)`;
+}
+
+// ── SHOOT ─────────────────────────────────────────────────────────
+function shoot() {
+  if (shooting || shots <= 0) return;
+  shooting = true;
+  shots--;
+  playKick();
+
+  const ball = document.getElementById('ball');
+  const pitch = document.getElementById('pitch');
+  const ph = pitch.offsetHeight;
+
+  // Target position (goal area is at top 20px, 260px wide centered)
+  const targetLeft = 50 + (aimX / pitch.offsetWidth) * 90;
+  const targetBottom = ph - 80;
+
+  ball.style.transition = 'left .55s cubic-bezier(.4,0,.2,1), bottom .55s cubic-bezier(.4,0,.2,1), transform .55s, font-size .55s';
+  ball.style.left = targetLeft + '%';
+  ball.style.bottom = targetBottom + 'px';
+  ball.style.transform = 'translateX(-50%) rotate(360deg)';
+  ball.style.fontSize = '1.4rem';
+
+  setTimeout(() => checkResult(), 580);
+}
+
+function checkResult() {
+  const pitch = document.getElementById('pitch');
+  const pw = pitch.offsetWidth;
+
+  // Goal post inner bounds (260px wide, centered)
+  const goalLeft  = pw/2 - 130 + 5;
+  const goalRight = pw/2 + 130 - 5;
+  const ballPixX  = pw/2 + aimX;
+
+  // GK position
+  const gkPixX = pw/2 + gkX;
+  const gkReach = 45;
+
+  const inGoal = ballPixX > goalLeft && ballPixX < goalRight;
+  const gkSaves = Math.abs(ballPixX - gkPixX) < gkReach;
+
+  if (inGoal && !gkSaves) {
+    goals++;
+    gkSpeed += 0.6;
+    showFlash('⚽ GOAL !', `${player.name.split(' ').pop().toUpperCase()} MARQUE !`, '#FFD700', '#1a5c1a');
+    playGoal();
+  } else if (!inGoal) {
+    showFlash('😬 RATÉ !', 'Le tir est passé à côté', '#FF6B35', '#1a1a0a');
+    playMiss();
+  } else {
+    showFlash('🧤 ARRÊTÉ !', 'Le gardien a tout donné !', '#3498DB', '#0a1a2a');
+    playMiss();
+  }
+
+  updateHUD();
+  setTimeout(() => {
+    clearFlash();
+    if (shots <= 0) {
+      setTimeout(endGame, 400);
+    } else {
+      resetBall();
     }
+  }, 1600);
+}
 
-    // ── État du jeu ──
-    let buts = 0;
-    let arrets = 0;
-    let tirsRestants = 5;
-    let positionBallon = 230;
-    let enJeu = true;
+// ── END GAME ──────────────────────────────────────────────────────
+function endGame() {
+  stopGkAnim();
+  stopKeyLoop();
+  const win = goals >= 3;
+  const el = document.getElementById('end');
+  document.getElementById('end-title').textContent = win ? '🏆 VICTOIRE !' : '😢 PERDU';
+  document.getElementById('end-score').textContent = `${goals} / 5 buts marqués`;
+  el.classList.add('show');
+  if (win) { for(let i=0;i<20;i++) spawnStar(); playWin(); }
+}
 
-    const ballonEl   = document.getElementById('ballon');
-    const gardienEl  = document.getElementById('gardien');
-    const flecheEl   = document.getElementById('fleche');
-    const overlay    = document.getElementById('overlay');
-    const oEmoji     = document.getElementById('overlay-emoji');
-    const oTexte     = document.getElementById('overlay-texte');
-    const oSous      = document.getElementById('overlay-sous');
-    const bouton     = document.getElementById('bouton-rejouer');
+function spawnStar() {
+  const s = document.createElement('div');
+  s.className = 'star-fall';
+  s.textContent = ['⭐','🌟','✨','🎉','🎊'][Math.floor(Math.random()*5)];
+  s.style.left = Math.random()*100 + '%';
+  s.style.animationDelay = Math.random()*1.2 + 's';
+  document.getElementById('end').appendChild(s);
+  setTimeout(() => s.remove(), 3000);
+}
 
-    // ── Gardien qui bouge ──
-    let posGardien = 210;
-    let dirGardien = 1;
-    let vitesse = 3;
-    let animGardien;
+// ── HUD ───────────────────────────────────────────────────────────
+function updateHUD() {
+  document.getElementById('hud-goals').textContent = goals;
+  const hearts = Array(shots).fill('❤️').join('') + Array(5-shots).fill('🖤').join('');
+  document.getElementById('hud-shots').textContent = hearts;
+}
 
-    function bougerGardien() {
-      posGardien += dirGardien * vitesse;
-      if (posGardien > 290) dirGardien = -1;
-      if (posGardien < 150) dirGardien = 1;
-      gardienEl.style.left = posGardien + 'px';
-      animGardien = requestAnimationFrame(bougerGardien);
-    }
+// ── FLASH ─────────────────────────────────────────────────────────
+function showFlash(msg, sub, color, bg) {
+  const f = document.getElementById('flash');
+  document.getElementById('flash-msg').textContent = msg;
+  document.getElementById('flash-msg').style.color = color;
+  document.getElementById('flash-sub').textContent = sub;
+  f.style.background = bg + 'cc';
+  f.classList.add('show');
+}
+function clearFlash() { document.getElementById('flash').classList.remove('show'); }
 
-    bougerGardien();
+// ── KEYS ──────────────────────────────────────────────────────────
+let keyState = {};
+let keyLoop;
+function startKeyLoop() {
+  clearInterval(keyLoop);
+  keyLoop = setInterval(() => {
+    if (keyState['ArrowLeft'])  moveAim(-1);
+    if (keyState['ArrowRight']) moveAim(1);
+  }, 16);
+}
+function stopKeyLoop() { clearInterval(keyLoop); }
 
-    // ── Clavier ──
-    document.addEventListener('keydown', function(e) {
-      if (!enJeu) return;
+document.addEventListener('keydown', e => {
+  keyState[e.key] = true;
+  if (e.key === 'ArrowUp' || e.key === ' ') { e.preventDefault(); shoot(); }
+});
+document.addEventListener('keyup', e => { keyState[e.key] = false; });
 
-      if (e.key === 'ArrowLeft') {
-        positionBallon = Math.max(20, positionBallon - 20);
-        ballonEl.style.left = positionBallon + 'px';
-        flecheEl.style.left = (positionBallon + 8) + 'px';
-      }
-      if (e.key === 'ArrowRight') {
-        positionBallon = Math.min(440, positionBallon + 20);
-        ballonEl.style.left = positionBallon + 'px';
-        flecheEl.style.left = (positionBallon + 8) + 'px';
-      }
-      if (e.key === 'ArrowUp') {
-        tirer();
-      }
-    });
+// Mobile
+function startMove(dir) { clearInterval(moveInterval); moveInterval = setInterval(() => moveAim(dir), 60); }
+function stopMove()      { clearInterval(moveInterval); }
 
-    // ── Tir ──
-    function tirer() {
-      if (tirsRestants <= 0 || !enJeu) return;
-      enJeu = false;
-      tirsRestants--;
-      document.getElementById('nb-tirs').textContent = tirsRestants;
-      flecheEl.style.display = 'none';
+// ── AUDIO ─────────────────────────────────────────────────────────
+const AC = new (window.AudioContext || window.webkitAudioContext)();
+function beep(freq, type, dur, vol=0.3, when=0) {
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.connect(g); g.connect(AC.destination);
+  o.type = type; o.frequency.value = freq;
+  g.gain.setValueAtTime(vol, AC.currentTime + when);
+  g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + when + dur);
+  o.start(AC.currentTime + when);
+  o.stop(AC.currentTime + when + dur);
+}
+function playKick()  { beep(80,'sawtooth',.12,.5); beep(180,'sine',.08,.2,.05); }
+function playGoal()  { [523,659,784,1047].forEach((f,i)=>beep(f,'sine',.25,.35,i*.1)); }
+function playMiss()  { beep(220,'sawtooth',.3,.3); beep(180,'sawtooth',.3,.2,.1); }
+function playWin()   {
+  [[523,.1],[659,.1],[784,.1],[1047,.15],[784,.1],[1047,.4]].forEach(([f,d],i)=>{
+    beep(f,'sine',d,.4,i*.12);
+  });
+}
 
-      let posY = 290;
-      const cibleX = positionBallon;
-      ballonEl.style.bottom = 'auto';
-      ballonEl.style.top = posY + 'px';
-
-      const intervalle = setInterval(function() {
-        posY -= 15;
-        ballonEl.style.top = posY + 'px';
-        if (posY <= 20) {
-          clearInterval(intervalle);
-          verifierBut(cibleX);
-        }
-      }, 30);
-    }
-
-    // ── Vérifier but ──
-    function verifierBut(xBallon) {
-      const centreBallon  = xBallon + 20;
-      const centreGardien = posGardien + 30;
-      const distance = Math.abs(centreBallon - centreGardien);
-      const dansBut  = xBallon >= 150 && xBallon <= 310;
-
-      if (dansBut && distance > 40) {
-        buts++;
-        document.getElementById('nb-buts').textContent = buts;
-        jouerSon('but');
-        afficherOverlay('⚽', 'BUT !!!', '', '#ffff00');
-        vitesse += 0.5;
-      } else if (!dansBut) {
-        arrets++;
-        document.getElementById('nb-arrets').textContent = arrets;
-        jouerSon('rate');
-        afficherOverlay('😬', 'À côté !', 'Vise mieux !', '#ff8800');
-      } else {
-        arrets++;
-        document.getElementById('nb-arrets').textContent = arrets;
-        jouerSon('rate');
-        afficherOverlay('🧤', 'Arrêté !', 'Le gardien est trop fort !', '#ff4444');
-      }
-
-      setTimeout(function() {
-        overlay.classList.remove('visible');
-
-        if (tirsRestants <= 0) {
-          setTimeout(finDePartie, 300);
-        } else {
-          reinitBallon();
-          enJeu = true;
-        }
-      }, 1200);
-    }
-
-    // ── Fin de partie ──
-    function finDePartie() {
-      cancelAnimationFrame(animGardien);
-
-      if (buts >= 3) {
-        jouerSon('victoire');
-        afficherOverlay('🏆', 'Tu as gagné !', buts + ' buts sur 5 tirs — Champion !', '#ffdd00');
-        lancerEtoiles();
-      } else if (buts >= 1) {
-        jouerSon('perdu');
-        afficherOverlay('😅', 'Pas mal !', buts + ' buts sur 5 — Réessaie !', '#ff8800');
-      } else {
-        jouerSon('perdu');
-        afficherOverlay('😢', 'Perdu !', '0 but... Le gardien a tout arrêté !', '#ff4444');
-      }
-
-      bouton.style.display = 'inline-block';
-    }
-
-    // ── Étoiles qui tombent ──
-    function lancerEtoiles() {
-      const terrain = document.getElementById('terrain');
-      const symboles = ['⭐', '🌟', '✨', '🎉', '🎊'];
-      for (let i = 0; i < 18; i++) {
-        setTimeout(function() {
-          const e = document.createElement('div');
-          e.className = 'etoile';
-          e.textContent = symboles[Math.floor(Math.random() * symboles.length)];
-          e.style.left = Math.random() * 460 + 'px';
-          e.style.animationDuration = (0.8 + Math.random() * 0.8) + 's';
-          terrain.appendChild(e);
-          setTimeout(() => e.remove(), 1600);
-        }, i * 80);
-      }
-    }
-
-    // ── Afficher overlay ──
-    function afficherOverlay(emoji, texte, sous, couleur) {
-      oEmoji.textContent = emoji;
-      oTexte.textContent = texte;
-      oTexte.style.color = couleur;
-      oSous.textContent = sous;
-      overlay.classList.add('visible');
-    }
-
-    // ── Remettre le ballon en place ──
-    function reinitBallon() {
-      positionBallon = 230;
-      ballonEl.style.top  = 'auto';
-      ballonEl.style.bottom = '30px';
-      ballonEl.style.left = positionBallon + 'px';
-      flecheEl.style.left = '238px';
-      flecheEl.style.display = 'block';
-    }
-
-    // ── Rejouer ──
-    function rejouer() {
-      buts = 0; arrets = 0; tirsRestants = 5;
-      vitesse = 3;
-      document.getElementById('nb-buts').textContent   = '0';
-      document.getElementById('nb-arrets').textContent = '0';
-      document.getElementById('nb-tirs').textContent   = '5';
-      bouton.style.display = 'none';
-      overlay.classList.remove('visible');
-      reinitBallon();
-      enJeu = true;
-      cancelAnimationFrame(animGardien);
-      bougerGardien();
-    }
-  </script>
-
+// ── UTILS ─────────────────────────────────────────────────────────
+function initials(name) {
+  return name.split(' ').slice(-2).map(w=>w[0]).join('').toUpperCase().slice(0,2);
+}
+function posLabel(pos) {
+  return {GK:'Doelman',DEF:'Verdediger',MID:'Middenvelder',ATT:'Aanvaller'}[pos]||pos;
+}
+</script>
 </body>
 </html>

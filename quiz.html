@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚽ Football Quiz - WK 2026</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Segoe UI',Arial,sans-serif;
+  background: radial-gradient(ellipse at center, #0d2137 0%, #050d1a 100%);
+  min-height:100vh; color:#fff; display:flex; flex-direction:column; align-items:center;
+}
+header {
+  width:100%; padding:14px 24px;
+  display:flex; align-items:center; justify-content:space-between;
+  background:rgba(0,0,0,.4);
+}
+header h1 { font-size:1.1rem; }
+header a {
+  color:#fff; text-decoration:none; background:rgba(255,255,255,.1);
+  padding:6px 14px; border-radius:16px; font-size:.8rem;
+}
+.container { width:100%; max-width:600px; padding:24px 16px; }
+
+/* Intro */
+#intro { text-align:center; padding:40px 16px; }
+#intro h2 { font-size:2rem; font-weight:900; color:#FFD700; margin-bottom:8px; }
+#intro p  { color:rgba(255,255,255,.6); margin-bottom:28px; }
+.start-btn {
+  background:#FFD700; color:#000; border:none;
+  padding:14px 36px; border-radius:28px; font-size:1.1rem;
+  font-weight:900; cursor:pointer; transition:transform .15s;
+}
+.start-btn:hover { transform:scale(1.05); }
+
+/* Quiz */
+#quiz { display:none; }
+.progress-bar {
+  height:4px; background:rgba(255,255,255,.1); border-radius:2px; margin-bottom:20px;
+}
+.progress-fill { height:100%; background:#FFD700; border-radius:2px; transition:width .4s; }
+.q-meta { display:flex; justify-content:space-between; margin-bottom:8px; }
+.q-num  { font-size:.8rem; color:rgba(255,255,255,.5); }
+.q-timer { font-size:.8rem; color:#FFD700; font-weight:700; }
+.q-text { font-size:1.25rem; font-weight:700; margin-bottom:20px; line-height:1.4; }
+.q-badge {
+  display:inline-block; padding:2px 10px; border-radius:10px; font-size:.7rem;
+  font-weight:700; margin-bottom:10px;
+  background:rgba(255,215,0,.15); color:#FFD700; border:1px solid rgba(255,215,0,.3);
+}
+.options { display:flex; flex-direction:column; gap:10px; }
+.opt {
+  padding:14px 18px; border-radius:12px; border:2px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.05); cursor:pointer; font-size:.95rem;
+  transition:border-color .15s, background .15s; text-align:left;
+  color:#fff;
+}
+.opt:hover:not(:disabled) { border-color:#FFD700; background:rgba(255,215,0,.1); }
+.opt.correct { border-color:#2ecc71; background:rgba(46,204,113,.15); }
+.opt.wrong   { border-color:#e74c3c; background:rgba(231,76,60,.15); }
+.opt:disabled { cursor:default; }
+
+/* Feedback */
+.feedback {
+  margin-top:14px; padding:12px 16px; border-radius:10px;
+  font-size:.85rem; background:rgba(0,0,0,.3); display:none; line-height:1.5;
+}
+
+/* End screen */
+#end-screen { display:none; text-align:center; padding:40px 16px; }
+.score-circle {
+  width:140px; height:140px; border-radius:50%;
+  border:6px solid #FFD700; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; margin:0 auto 20px;
+  background:rgba(255,215,0,.08);
+}
+.score-circle .big { font-size:2.5rem; font-weight:900; color:#FFD700; }
+.score-circle .of  { font-size:.85rem; color:rgba(255,255,255,.5); }
+.rating { font-size:1.6rem; font-weight:900; margin-bottom:8px; }
+.rating-sub { color:rgba(255,255,255,.6); margin-bottom:28px; font-size:.9rem; }
+.end-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.e-btn {
+  padding:11px 24px; border-radius:22px; font-size:.9rem;
+  font-weight:700; border:none; cursor:pointer;
+}
+.e-btn.gold   { background:#FFD700; color:#000; }
+.e-btn.ghost  { background:rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.2); }
+
+@media(max-width:480px) { .q-text { font-size:1.05rem; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎯 Football Quiz</h1>
+  <a href="index.html">🎮 Spel</a>
+</header>
+
+<div class="container">
+
+  <!-- INTRO -->
+  <div id="intro">
+    <h2>⚽ WK 2026 Quiz</h2>
+    <p>20 vragen over Barça, Rode Duivels & Spanje<br>10 seconden per vraag — veel succes!</p>
+    <button class="start-btn" onclick="startQuiz()">▶ Start de quiz</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz">
+    <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+    <div class="q-meta">
+      <span class="q-num" id="qnum">Vraag 1 / 20</span>
+      <span class="q-timer" id="qtimer">⏱ 10</span>
+    </div>
+    <div class="q-badge" id="qbadge">Barça</div>
+    <div class="q-text" id="qtext"></div>
+    <div class="options" id="opts"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <!-- END -->
+  <div id="end-screen">
+    <div class="score-circle">
+      <div class="big" id="fin-score"></div>
+      <div class="of" id="fin-of"></div>
+    </div>
+    <div class="rating" id="fin-rating"></div>
+    <div class="rating-sub" id="fin-sub"></div>
+    <div class="end-btns">
+      <button class="e-btn gold" onclick="startQuiz()">🔄 Opnieuw</button>
+      <a class="e-btn ghost" href="index.html">⚽ Spel spelen</a>
+      <a class="e-btn ghost" href="players.html">⭐ Statistieken</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  // BARCA
+  { cat:'Barça', q:'Hoeveel goals scoorde Lamine Yamal dit seizoen voor Barcelona?', opts:['12','16','20','9'], a:1 },
+  { cat:'Barça', q:'Hoeveel assists heeft Lamine Yamal dit seizoen voor Barça?', opts:['7','9','11','14'], a:2 },
+  { cat:'Barça', q:'Hoeveel goals scoorde Robert Lewandowski dit seizoen?', opts:['18','21','25','30'], a:2 },
+  { cat:'Barça', q:'Hoeveel goals scoorde Pedri dit seizoen voor Barcelona?', opts:['5','7','9','12'], a:2 },
+  { cat:'Barça', q:'Welke Barcelonaspeler vertegenwoordigt Nederland op het WK?', opts:['Koundé','Gavi','Frenkie de Jong','Cubarsí'], a:2 },
+  { cat:'Barça', q:'Welk land vertegenwoordigt Jules Koundé?', opts:['Spanje','Frankrijk','Portugal','België'], a:1 },
+  { cat:'Barça', q:'Hoeveel wedstrijden speelde Pedri dit seizoen voor Barça?', opts:['24','28','34','40'], a:2 },
+  // RODE DUIVELS
+  { cat:'🇧🇪 Rode Duivels', q:'Hoeveel interlandgoals heeft Romelu Lukaku gescoord voor België?', opts:['60','68','77','85'], a:2 },
+  { cat:'🇧🇪 Rode Duivels', q:'Hoeveel assists heeft Kevin De Bruyne voor de Rode Duivels?', opts:['30','38','45','52'], a:2 },
+  { cat:'🇧🇪 Rode Duivels', q:'Wat was de score van België vs Egypte op het WK 2026?', opts:['2-0','1-0','0-0','1-1'], a:3 },
+  { cat:'🇧🇪 Rode Duivels', q:'In welke stad speelt België vs Iran op het WK 2026?', opts:['Seattle','New York','Los Angeles','Miami'], a:2 },
+  { cat:'🇧🇪 Rode Duivels', q:'Wie is kapitein van de Rode Duivels op het WK 2026?', opts:['Kevin De Bruyne','Romelu Lukaku','Youri Tielemans','Thibaut Courtois'], a:2 },
+  { cat:'🇧🇪 Rode Duivels', q:'Bij welke club speelt Kevin De Bruyne dit seizoen?', opts:['Man City','PSG','Napoli','Inter'], a:2 },
+  { cat:'🇧🇪 Rode Duivels', q:'In welke groep zit België op het WK 2026?', opts:['Groep E','Groep F','Groep G','Groep H'], a:2 },
+  // SPANJE
+  { cat:'🇪🇸 España', q:'Wat was de score van Spanje vs Kaapverdië op het WK 2026?', opts:['1-0','2-1','0-0','3-0'], a:2 },
+  { cat:'🇪🇸 España', q:'Tegen welk land speelt Spanje op 26 juni in Guadalajara?', opts:['Saudi-Arabië','Kaapverdië','Mexico','Uruguay'], a:3 },
+  { cat:'🇪🇸 España', q:'In welke groep zit Spanje op het WK 2026?', opts:['Groep F','Groep G','Groep H','Groep I'], a:2 },
+  { cat:'🇪🇸 España', q:'Hoeveel goals scoorde Ferran Torres dit seizoen voor Barça?', opts:['10','13','16','20'], a:2 },
+  { cat:'🇪🇸 España', q:'Hoeveel interlandwedstrijden speelde Rodri voor Spanje?', opts:['38','42','48','55'], a:2 },
+  { cat:'🇪🇸 España', q:'Welke Barcelonaspeler staat op doel voor Spanje op het WK 2026?', opts:['Ter Stegen','Unai Simón','David Raya','Joan García'], a:3 },
+];
+
+let current, score, timer, timerId;
+
+function shuffle(arr) { return [...arr].sort(()=>Math.random()-.5); }
+
+function startQuiz() {
+  current = 0; score = 0;
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('end-screen').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  showQuestion();
+}
+
+function showQuestion() {
+  clearInterval(timerId);
+  const q = QUESTIONS[current];
+  document.getElementById('prog').style.width = (current/QUESTIONS.length*100)+'%';
+  document.getElementById('qnum').textContent = `Vraag ${current+1} / ${QUESTIONS.length}`;
+  document.getElementById('qbadge').textContent = q.cat;
+  document.getElementById('qtext').textContent = q.q;
+  document.getElementById('feedback').style.display = 'none';
+
+  const opts = document.getElementById('opts');
+  opts.innerHTML = q.opts.map((o,i) => `
+    <button class="opt" onclick="answer(${i})">${o}</button>
+  `).join('');
+
+  timer = 10;
+  document.getElementById('qtimer').textContent = '⏱ '+timer;
+  timerId = setInterval(() => {
+    timer--;
+    document.getElementById('qtimer').textContent = '⏱ '+timer;
+    if(timer <= 0) { clearInterval(timerId); answer(-1); }
+  }, 1000);
+}
+
+function answer(idx) {
+  clearInterval(timerId);
+  const q = QUESTIONS[current];
+  const btns = document.querySelectorAll('.opt');
+  btns.forEach(b => b.disabled = true);
+
+  const correct = idx === q.a;
+  if(correct) score++;
+
+  btns[q.a].classList.add('correct');
+  if(idx >= 0 && !correct) btns[idx].classList.add('wrong');
+
+  const fb = document.getElementById('feedback');
+  fb.style.display = 'block';
+  fb.style.borderLeft = `3px solid ${correct?'#2ecc71':idx<0?'#888':'#e74c3c'}`;
+  fb.textContent = correct
+    ? '✅ Correct!'
+    : idx < 0
+    ? `⏰ Tijd om! Het juiste antwoord was: ${q.opts[q.a]}`
+    : `❌ Fout! Het juiste antwoord was: ${q.opts[q.a]}`;
+
+  setTimeout(() => {
+    current++;
+    if(current < QUESTIONS.length) showQuestion();
+    else showEnd();
+  }, 1800);
+}
+
+function showEnd() {
+  document.getElementById('quiz').style.display = 'none';
+  const es = document.getElementById('end-screen');
+  es.style.display = 'block';
+  document.getElementById('fin-score').textContent = score;
+  document.getElementById('fin-of').textContent = `/ ${QUESTIONS.length}`;
+
+  const pct = score/QUESTIONS.length;
+  let rating, sub;
+  if(pct >= .9)      { rating='🏆 LEGENDE!';       sub='Je weet alles over voetbal!'; }
+  else if(pct >= .75){ rating='🥇 Uitstekend!';    sub='Je bent een echte voetbalkenner!'; }
+  else if(pct >= .6) { rating='🥈 Goed gedaan!';   sub='Nog een beetje meer studeren...'; }
+  else if(pct >= .4) { rating='🥉 Niet slecht!';   sub='Bekijk de statistieken en probeer opnieuw!'; }
+  else               { rating='😅 Oefening baart kunst'; sub='Ga naar de spelerspagina om bij te leren!'; }
+
+  document.getElementById('fin-rating').textContent = rating;
+  document.getElementById('fin-sub').textContent = sub;
+}
+</script>
+</body>
+</html>
