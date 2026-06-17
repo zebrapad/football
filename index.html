@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Jeu de Football ⚽</title>
+  <style>
+    body {
+      background: #1a7a1a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px black;
+    }
+
+    #score {
+      font-size: 1.5em;
+      margin-bottom: 15px;
+    }
+
+    #terrain {
+      position: relative;
+      width: 500px;
+      height: 350px;
+      background: #2d9c2d;
+      border: 4px solid white;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    /* Lignes du terrain */
+    #terrain::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: rgba(255,255,255,0.3);
+    }
+
+    #but {
+      position: absolute;
+      top: 0;
+      left: 150px;
+      width: 200px;
+      height: 60px;
+      background: rgba(255,255,255,0.15);
+      border: 3px solid white;
+      border-top: none;
+      box-sizing: border-box;
+    }
+
+    #gardien {
+      position: absolute;
+      top: 10px;
+      left: 210px;
+      width: 60px;
+      height: 60px;
+      font-size: 2.5em;
+      text-align: center;
+      line-height: 60px;
+      transition: left 0.1s;
+    }
+
+    #ballon {
+      position: absolute;
+      bottom: 30px;
+      left: 230px;
+      font-size: 2em;
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      line-height: 40px;
+      transition: none;
+    }
+
+    #fleche {
+      position: absolute;
+      bottom: 75px;
+      left: 238px;
+      font-size: 1.5em;
+      transition: left 0.1s;
+    }
+
+    #message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2.5em;
+      font-weight: bold;
+      text-shadow: 3px 3px black;
+      display: none;
+    }
+
+    #instructions {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 1em;
+      background: rgba(0,0,0,0.4);
+      padding: 10px 20px;
+      border-radius: 10px;
+    }
+
+    #instructions span {
+      font-size: 1.3em;
+    }
+
+    #bouton-rejouer {
+      margin-top: 15px;
+      padding: 12px 30px;
+      font-size: 1.2em;
+      background: #ff6600;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      display: none;
+    }
+
+    #bouton-rejouer:hover {
+      background: #ff8800;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>⚽ Jeu de Football ⚽</h1>
+  <div id="score">Buts : 0 | Arrêts : 0</div>
+
+  <div id="terrain">
+    <div id="but"></div>
+    <div id="gardien">🧤</div>
+    <div id="fleche">⬆️</div>
+    <div id="ballon">⚽</div>
+    <div id="message"></div>
+  </div>
+
+  <div id="instructions">
+    <span>⬅️ ➡️</span> Viser &nbsp;|&nbsp; <span>⬆️</span> Tirer !
+  </div>
+
+  <button id="bouton-rejouer" onclick="rejouer()">🔄 Rejouer !</button>
+
+  <script>
+    let buts = 0;
+    let arrets = 0;
+    let positionBallon = 230; // position X du ballon
+    let enJeu = true;
+
+    const ballon = document.getElementById('ballon');
+    const gardien = document.getElementById('gardien');
+    const fleche = document.getElementById('fleche');
+    const message = document.getElementById('message');
+    const scoreDiv = document.getElementById('score');
+    const boutonRejouer = document.getElementById('bouton-rejouer');
+
+    // Le gardien bouge tout seul
+    let posGardien = 210;
+    let directionGardien = 1;
+    let vitesseGardien = 3;
+
+    function bougerGardien() {
+      if (!enJeu) return;
+      posGardien += directionGardien * vitesseGardien;
+      if (posGardien > 290) directionGardien = -1;
+      if (posGardien < 150) directionGardien = 1;
+      gardien.style.left = posGardien + 'px';
+      requestAnimationFrame(bougerGardien);
+    }
+
+    bougerGardien();
+
+    // Touches du clavier
+    document.addEventListener('keydown', function(e) {
+      if (!enJeu) return;
+
+      if (e.key === 'ArrowLeft') {
+        positionBallon = Math.max(20, positionBallon - 20);
+        ballon.style.left = positionBallon + 'px';
+        fleche.style.left = (positionBallon + 8) + 'px';
+      }
+
+      if (e.key === 'ArrowRight') {
+        positionBallon = Math.min(440, positionBallon + 20);
+        ballon.style.left = positionBallon + 'px';
+        fleche.style.left = (positionBallon + 8) + 'px';
+      }
+
+      if (e.key === 'ArrowUp') {
+        tirer();
+      }
+    });
+
+    function tirer() {
+      enJeu = false;
+      fleche.style.display = 'none';
+
+      // Animer le ballon vers le haut
+      let posY = 290; // bas du terrain (bottom en px depuis le haut)
+      let cibleX = positionBallon;
+
+      ballon.style.transition = 'none';
+      ballon.style.bottom = 'auto';
+      ballon.style.top = posY + 'px';
+      ballon.style.left = cibleX + 'px';
+
+      let intervalle = setInterval(function() {
+        posY -= 15;
+        ballon.style.top = posY + 'px';
+
+        if (posY <= 20) {
+          clearInterval(intervalle);
+          verifierBut(cibleX);
+        }
+      }, 30);
+    }
+
+    function verifierBut(xBallon) {
+      let centreBallon = xBallon + 20;
+      let centreGardien = posGardien + 30;
+
+      let distance = Math.abs(centreBallon - centreGardien);
+
+      if (xBallon >= 150 && xBallon <= 310 && distance > 40) {
+        // BUT !
+        buts++;
+        afficherMessage('⚽ BUT !!!', '#ffff00');
+        vitesseGardien += 0.5; // le gardien devient plus rapide !
+      } else if (xBallon < 150 || xBallon > 310) {
+        // À côté du but
+        afficherMessage('😬 À côté !', '#ff8800');
+        arrets++;
+      } else {
+        // Arrêté par le gardien
+        arrets++;
+        afficherMessage('🧤 Arrêté !', '#ff4444');
+      }
+
+      scoreDiv.textContent = 'Buts : ' + buts + ' | Arrêts : ' + arrets;
+      boutonRejouer.style.display = 'inline-block';
+    }
+
+    function afficherMessage(texte, couleur) {
+      message.textContent = texte;
+      message.style.color = couleur;
+      message.style.display = 'block';
+    }
+
+    function rejouer() {
+      enJeu = true;
+      positionBallon = 230;
+
+      ballon.style.top = 'auto';
+      ballon.style.bottom = '30px';
+      ballon.style.left = positionBallon + 'px';
+
+      fleche.style.left = '238px';
+      fleche.style.display = 'block';
+
+      message.style.display = 'none';
+      boutonRejouer.style.display = 'none';
+
+      bougerGardien();
+    }
+  </script>
+
+</body>
+</html>
