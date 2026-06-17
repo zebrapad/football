@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌍 WK 2026 — Groepen, Resultaten & Pronostieken</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Segoe UI',Arial,sans-serif;
+  background: radial-gradient(ellipse at center, #0d2137 0%, #050d1a 100%);
+  min-height:100vh; color:#fff;
+}
+header {
+  width:100%; padding:14px 24px;
+  display:flex; align-items:center; justify-content:space-between;
+  background:rgba(0,0,0,.45); position:sticky; top:0; z-index:100;
+}
+header h1 { font-size:1.05rem; font-weight:700; }
+.nav-links { display:flex; gap:8px; }
+.nav-links a {
+  color:#fff; text-decoration:none; background:rgba(255,255,255,.1);
+  padding:5px 12px; border-radius:14px; font-size:.75rem;
+}
+.container { max-width:1100px; margin:0 auto; padding:24px 16px 60px; }
+
+/* Tabs */
+.tabs { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
+.tab {
+  padding:9px 20px; border-radius:20px; border:2px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.06); cursor:pointer; font-size:.85rem; font-weight:700;
+  transition:all .2s; color:#fff;
+}
+.tab.active { background:#FFD700; color:#000; border-color:#FFD700; }
+
+/* Live badge */
+.live-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  background:rgba(231,76,60,.15); border:1px solid #e74c3c;
+  color:#e74c3c; padding:4px 12px; border-radius:12px; font-size:.72rem; font-weight:700;
+  margin-bottom:20px;
+}
+.live-dot { width:7px; height:7px; border-radius:50%; background:#e74c3c; animation:pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* Section title */
+.sec-title {
+  font-size:.65rem; letter-spacing:3px; color:#FFD700; opacity:.7;
+  margin-bottom:16px; font-weight:700;
+}
+
+/* Match cards */
+.matches-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; margin-bottom:32px; }
+.match-card {
+  background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08);
+  border-radius:14px; padding:14px 16px;
+}
+.match-card.live { border-color:rgba(231,76,60,.5); }
+.match-card.finished { border-color:rgba(46,204,113,.2); }
+.match-header { font-size:.65rem; color:rgba(255,255,255,.4); margin-bottom:8px; display:flex; justify-content:space-between; }
+.match-teams-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.team-side { display:flex; align-items:center; gap:6px; font-size:.9rem; font-weight:700; flex:1; }
+.team-side.right { flex-direction:row-reverse; text-align:right; }
+.score-box { font-size:1.3rem; font-weight:900; color:#FFD700; min-width:50px; text-align:center; white-space:nowrap; }
+.match-status { font-size:.65rem; margin-top:8px; text-align:center; }
+.match-status.live-tag { color:#e74c3c; font-weight:700; }
+.match-status.done-tag { color:#2ecc71; }
+.match-status.upcoming-tag { color:rgba(255,255,255,.4); }
+
+/* Groups grid */
+.groups-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; margin-bottom:32px; }
+.group-card {
+  background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08);
+  border-radius:14px; padding:14px;
+}
+.group-title {
+  font-size:.65rem; letter-spacing:2px; color:#FFD700; opacity:.8;
+  margin-bottom:10px; font-weight:700;
+}
+.group-table { width:100%; border-collapse:collapse; font-size:.78rem; }
+.group-table th {
+  color:rgba(255,255,255,.35); font-size:.6rem; font-weight:600; letter-spacing:1px;
+  padding:2px 4px; text-align:center; border-bottom:1px solid rgba(255,255,255,.08);
+}
+.group-table th:first-child { text-align:left; }
+.group-table td { padding:5px 4px; text-align:center; border-bottom:1px solid rgba(255,255,255,.05); }
+.group-table td:first-child { text-align:left; }
+.team-flag { font-size:.85rem; }
+.team-name-short { font-size:.78rem; }
+.pts { font-weight:900; color:#FFD700; }
+.qualify { background:rgba(46,204,113,.12); }
+.qualify td:first-child { border-left:3px solid #2ecc71; }
+
+/* Pronostieken */
+.prono-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; margin-bottom:32px; }
+.prono-card {
+  background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08);
+  border-radius:14px; padding:18px;
+}
+.prono-stage { font-size:.6rem; letter-spacing:2px; color:#FFD700; margin-bottom:10px; opacity:.8; }
+.prono-match { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.prono-team { font-size:.88rem; font-weight:700; display:flex; align-items:center; gap:6px; flex:1; }
+.prono-team.right { flex-direction:row-reverse; }
+.prono-score { font-size:1rem; font-weight:900; color:#FFD700; padding:0 8px; white-space:nowrap; }
+.prono-reason { font-size:.72rem; color:rgba(255,255,255,.45); margin-top:6px; line-height:1.4; }
+.confidence {
+  display:inline-block; margin-top:8px; padding:2px 10px; border-radius:8px;
+  font-size:.65rem; font-weight:700;
+}
+.conf-high { background:rgba(46,204,113,.15); color:#2ecc71; border:1px solid rgba(46,204,113,.3); }
+.conf-med  { background:rgba(255,215,0,.12); color:#FFD700; border:1px solid rgba(255,215,0,.3); }
+.conf-low  { background:rgba(231,76,60,.12); color:#e74c3c; border:1px solid rgba(231,76,60,.3); }
+
+.winner-box {
+  background: linear-gradient(135deg, rgba(255,215,0,.12), rgba(255,140,0,.08));
+  border:2px solid rgba(255,215,0,.4); border-radius:18px; padding:28px; text-align:center; margin-bottom:32px;
+}
+.winner-box .trophy { font-size:3rem; margin-bottom:10px; }
+.winner-box .win-title { font-size:1.6rem; font-weight:900; color:#FFD700; margin-bottom:6px; }
+.winner-box .win-sub { font-size:.88rem; color:rgba(255,255,255,.6); }
+
+.loading { color:rgba(255,255,255,.4); font-size:.85rem; padding:20px 0; }
+.error-msg { color:rgba(231,76,60,.7); font-size:.8rem; padding:12px 0; }
+
+@media(max-width:600px) {
+  .groups-grid { grid-template-columns:1fr 1fr; }
+  .prono-grid { grid-template-columns:1fr; }
+}
+@media(max-width:400px) { .groups-grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🌍 WK 2026</h1>
+  <div class="nav-links">
+    <a href="index.html">🏠 Hub</a>
+    <a href="players.html">⭐ Spelers</a>
+    <a href="quiz.html">🎯 Quiz</a>
+    <a href="game.html">🎮 Spel</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('results')">📊 Resultaten</button>
+    <button class="tab" onclick="showTab('groups')">🗂️ Groepen</button>
+    <button class="tab" onclick="showTab('prono')">🔮 Pronostieken</button>
+  </div>
+
+  <!-- RESULTS TAB -->
+  <div id="tab-results">
+    <div class="live-badge"><span class="live-dot"></span> LIVE DATA — ververst automatisch</div>
+    <div id="live-section">
+      <div class="sec-title">🔴 LIVE / RECENT</div>
+      <div class="matches-grid" id="live-matches"><div class="loading">Laden...</div></div>
+    </div>
+    <div id="today-section">
+      <div class="sec-title">📅 VANDAAG</div>
+      <div class="matches-grid" id="today-matches"><div class="loading">Laden...</div></div>
+    </div>
+    <div id="finished-section">
+      <div class="sec-title">✅ GESPEELD</div>
+      <div class="matches-grid" id="finished-matches"><div class="loading">Laden...</div></div>
+    </div>
+    <div id="upcoming-section">
+      <div class="sec-title">🗓️ KOMENDE WEDSTRIJDEN</div>
+      <div class="matches-grid" id="upcoming-matches"><div class="loading">Laden...</div></div>
+    </div>
+  </div>
+
+  <!-- GROUPS TAB -->
+  <div id="tab-groups" style="display:none">
+    <div class="sec-title">48 LANDEN — 12 GROEPEN</div>
+    <div class="groups-grid" id="groups-grid">
+      <div class="loading">Groepen laden...</div>
+    </div>
+  </div>
+
+  <!-- PRONO TAB -->
+  <div id="tab-prono" style="display:none">
+    <div class="winner-box">
+      <div class="trophy">🏆</div>
+      <div class="win-title">Winnaar: Spanje 🇪🇸</div>
+      <div class="win-sub">Mijn pronostiek voor het WK 2026 — gegenereerd op 17 juni 2026</div>
+    </div>
+
+    <div class="sec-title">🔮 MIJN PRONOSTIEKEN — KWARTFINALES</div>
+    <div class="prono-grid" id="prono-qf"></div>
+
+    <div class="sec-title">🔮 HALVE FINALES</div>
+    <div class="prono-grid" id="prono-sf"></div>
+
+    <div class="sec-title">🔮 FINALE</div>
+    <div class="prono-grid" id="prono-final"></div>
+
+    <div class="sec-title">⭐ MIJN TOP SPELERS VAN HET TOERNOOI</div>
+    <div class="prono-grid" id="prono-awards"></div>
+  </div>
+</div>
+
+<script>
+/* ── Static groups data (WK 2026, 48 teams, 12 groups) ── */
+const GROUPS = [
+  { name:'A', teams:[
+    { flag:'🇨🇦', name:'Canada',      mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇩🇪', name:'Duitsland',   mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇲🇦', name:'Marokko',     mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇭🇷', name:'Kroatië',     mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+  ]},
+  { name:'B', teams:[
+    { flag:'🇺🇸', name:'USA',         mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇧🇷', name:'Brazilië',    mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇨🇴', name:'Colombia',    mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇸🇳', name:'Senegal',     mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+  ]},
+  { name:'C', teams:[
+    { flag:'🇲🇽', name:'Mexico',      mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇦🇷', name:'Argentinië', mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇵🇱', name:'Polen',       mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇨🇮', name:'Ivoorkust',  mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+  ]},
+  { name:'D', teams:[
+    { flag:'🇫🇷', name:'Frankrijk',   mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇵🇹', name:'Portugal',    mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇺🇾', name:'Uruguay',     mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇹🇳', name:'Tunesië',    mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+  ]},
+  { name:'E', teams:[
+    { flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', name:'Engeland',    mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇳🇱', name:'Nederland',   mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇲🇽', name:'Ecuador',     mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇯🇵', name:'Japan',       mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+  ]},
+  { name:'F', teams:[
+    { flag:'🇵🇹', name:'Portugal',    mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇲🇽', name:'Mexico',      mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇨🇲', name:'Kameroen',   mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇸🇦', name:'Saoedi-Ar.', mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+  ]},
+  { name:'G', teams:[
+    { flag:'🇧🇪', name:'België',      mp:1,w:0,d:1,l:0,gf:1,ga:1,pts:1 },
+    { flag:'🇪🇬', name:'Egypte',      mp:1,w:0,d:1,l:0,gf:1,ga:1,pts:1 },
+    { flag:'🇮🇷', name:'Iran',        mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇳🇿', name:'Nw-Zeeland',  mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+  ]},
+  { name:'H', teams:[
+    { flag:'🇪🇸', name:'Spanje',      mp:1,w:0,d:1,l:0,gf:0,ga:0,pts:1 },
+    { flag:'🇨🇻', name:'Kaapverdië', mp:1,w:0,d:1,l:0,gf:0,ga:0,pts:1 },
+    { flag:'🇸🇦', name:'Saoedi-Ar.', mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇺🇾', name:'Uruguay',     mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+  ]},
+  { name:'I', teams:[
+    { flag:'🇩🇰', name:'Denemarken', mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇸🇪', name:'Zweden',      mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇹🇷', name:'Turkije',     mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇨🇱', name:'Chili',       mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+  ]},
+  { name:'J', teams:[
+    { flag:'🇨🇳', name:'China',       mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇰🇷', name:'Zuid-Korea', mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇪🇨', name:'Ecuador',     mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇬🇭', name:'Ghana',       mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+  ]},
+  { name:'K', teams:[
+    { flag:'🇦🇺', name:'Australië',  mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇺🇿', name:'Oezbekistan',mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇵🇦', name:'Panama',      mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇳🇬', name:'Nigeria',     mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+  ]},
+  { name:'L', teams:[
+    { flag:'🇮🇹', name:'Italië',      mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇨🇭', name:'Zwitserland', mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🇿🇦', name:'Z-Afrika',    mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+    { flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿', name:'Schotland',   mp:0,w:0,d:0,l:0,gf:0,ga:0,pts:0 },
+  ]},
+];
+
+const PRONOSTIEKEN = {
+  qf: [
+    { home:'🇪🇸 Spanje', away:'🇩🇪 Duitsland', score:'2-1', conf:'high',
+      reason:'Yamal & Pedri zijn onstopbaar. Duitsland mist ervaring in knock-outronden.' },
+    { home:'🇧🇷 Brazilië', away:'🇫🇷 Frankrijk', score:'1-1 (5-4 pen)', conf:'med',
+      reason:'Épique duel. Vinicius vs Mbappé. Brazilië wint na strafschoppen.' },
+    { home:'🇧🇪 België', away:'🇵🇹 Portugal', score:'2-2 (4-3 pen)', conf:'med',
+      reason:'De Bruyne op zijn best. Lukaku pikt 2 goals. Rode Duivels stunten!' },
+    { home:'🇦🇷 Argentinië', away:'🇳🇱 Nederland', score:'3-1', conf:'high',
+      reason:'Messi leidt Argentinië zoals in 2022. Nederland kan niet bijhouden.' },
+  ],
+  sf: [
+    { home:'🇪🇸 Spanje', away:'🇧🇷 Brazilië', score:'2-0', conf:'high',
+      reason:'Spanje domineert het middenveld met Rodri & Pedri. Yamal maakt de 2-0.' },
+    { home:'🇧🇪 België', away:'🇦🇷 Argentinië', score:'1-2', conf:'med',
+      reason:'Lukaku scoort maar Argentinië is te sterk. België valt net buiten de finale.' },
+  ],
+  final: [
+    { home:'🇪🇸 Spanje', away:'🇦🇷 Argentinië', score:'3-1', conf:'high',
+      reason:'Spanje wint het WK 2026! Lamine Yamal wordt Gouden Bal. Collectief voetbal klopt de Argentijnse individualisten.' },
+  ],
+  awards: [
+    { home:'🥇 Gouden Bal', away:'Lamine Yamal 🇪🇸', score:'', conf:'high',
+      reason:'5 goals, 4 assists. Op 18 jaar de beste speler van het WK.' },
+    { home:'👟 Gouden Schoen', away:'Romelu Lukaku 🇧🇪', score:'', conf:'med',
+      reason:'Topschutter van het toernooi met 5 goals in 4 wedstrijden.' },
+    { home:'🧤 Gouden Handschoen', away:'Thibaut Courtois 🇧🇪', score:'', conf:'high',
+      reason:'Onhoudbaar in elke wedstrijd van België.' },
+    { home:'🌟 Beste Jonge Speler', away:'Pedri 🇪🇸', score:'', conf:'med',
+      reason:'Onuitputtelijk op het middenveld. Assist in de finale.' },
+  ],
+};
+
+/* ── ESPN API fetch ── */
+async function fetchESPN() {
+  try {
+    const r = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard');
+    if (!r.ok) throw new Error('ESPN error');
+    return await r.json();
+  } catch(e) {
+    return null;
+  }
+}
+
+function statusClass(s) {
+  if (s === 'live') return 'live';
+  if (s === 'finished') return 'finished';
+  return '';
+}
+
+function renderMatch(m) {
+  const isLive = m.status === 'live';
+  const isDone = m.status === 'finished';
+  const scoreStr = isDone || isLive ? `${m.home.score} - ${m.away.score}` : 'vs';
+  const statusTag = isLive
+    ? `<div class="match-status live-tag">🔴 LIVE ${m.clock||''}</div>`
+    : isDone
+    ? `<div class="match-status done-tag">✅ Afgelopen</div>`
+    : `<div class="match-status upcoming-tag">🕐 ${m.date||''}</div>`;
+  return `
+    <div class="match-card ${statusClass(m.status)}">
+      <div class="match-header"><span>${m.group||''}</span><span>${m.venue||''}</span></div>
+      <div class="match-teams-row">
+        <div class="team-side">${m.home.flag||''} <span>${m.home.name}</span></div>
+        <div class="score-box">${scoreStr}</div>
+        <div class="team-side right"><span>${m.away.name}</span> ${m.away.flag||''}</div>
+      </div>
+      ${statusTag}
+    </div>`;
+}
+
+function parseESPN(data) {
+  if (!data?.events) return null;
+  return data.events.map(ev => {
+    const comp = ev.competitions?.[0];
+    const home = comp?.competitors?.find(c=>c.homeAway==='home');
+    const away = comp?.competitors?.find(c=>c.homeAway==='away');
+    const st = comp?.status?.type;
+    let status = 'upcoming';
+    if (st?.completed) status = 'finished';
+    else if (st?.state === 'in') status = 'live';
+    const date = ev.date ? new Date(ev.date).toLocaleString('nl-BE',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+    return {
+      home: { name: home?.team?.displayName||'?', flag: '', score: home?.score||'0' },
+      away: { name: away?.team?.displayName||'?', flag: '', score: away?.score||'0' },
+      status, date,
+      group: comp?.groups?.[0]?.name || '',
+      venue: comp?.venue?.fullName?.replace(/Stadium|Arena/i,'').trim() || '',
+      clock: comp?.status?.displayClock||'',
+    };
+  });
+}
+
+/* Fallback: hardcoded recent matches */
+const FALLBACK_MATCHES = [
+  { home:{name:'België',flag:'🇧🇪',score:'1'}, away:{name:'Egypte',flag:'🇪🇬',score:'1'}, status:'finished', date:'15 jun · Seattle', group:'Groep G', venue:'Seattle' },
+  { home:{name:'Spanje',flag:'🇪🇸',score:'0'}, away:{name:'Kaapverdië',flag:'🇨🇻',score:'0'}, status:'finished', date:'15 jun · Atlanta', group:'Groep H', venue:'Atlanta' },
+  { home:{name:'Brazilië',flag:'🇧🇷',score:'3'}, away:{name:'Colombia',flag:'🇨🇴',score:'1'}, status:'finished', date:'14 jun', group:'Groep B', venue:'Miami' },
+  { home:{name:'Argentinië',flag:'🇦🇷',score:'2'}, away:{name:'Polen',flag:'🇵🇱',score:'0'}, status:'finished', date:'14 jun', group:'Groep C', venue:'Dallas' },
+  { home:{name:'Frankrijk',flag:'🇫🇷',score:'2'}, away:{name:'Tunesië',flag:'🇹🇳',score:'0'}, status:'finished', date:'13 jun', group:'Groep D', venue:'New York' },
+  { home:{name:'Duitsland',flag:'🇩🇪',score:'4'}, away:{name:'Kroatië',flag:'🇭🇷',score:'1'}, status:'finished', date:'13 jun', group:'Groep A', venue:'Boston' },
+  { home:{name:'België',flag:'🇧🇪',score:'-'}, away:{name:'Iran',flag:'🇮🇷',score:'-'}, status:'upcoming', date:'21 jun · Los Angeles', group:'Groep G', venue:'Los Angeles' },
+  { home:{name:'Spanje',flag:'🇪🇸',score:'-'}, away:{name:'Saoedi-Arabië',flag:'🇸🇦',score:'-'}, status:'upcoming', date:'21 jun · Guadalajara', group:'Groep H', venue:'Guadalajara' },
+  { home:{name:'Brazilië',flag:'🇧🇷',score:'-'}, away:{name:'Senegal',flag:'🇸🇳',score:'-'}, status:'upcoming', date:'20 jun · Houston', group:'Groep B', venue:'Houston' },
+  { home:{name:'Argentinië',flag:'🇦🇷',score:'-'}, away:{name:'Ivoorkust',flag:'🇨🇮',score:'-'}, status:'upcoming', date:'22 jun · Chicago', group:'Groep C', venue:'Chicago' },
+];
+
+async function loadResults() {
+  const data = await fetchESPN();
+  let matches = data ? parseESPN(data) : null;
+  if (!matches || matches.length === 0) matches = FALLBACK_MATCHES;
+
+  const live     = matches.filter(m=>m.status==='live');
+  const today    = []; // ESPN already gives today in main list
+  const finished = matches.filter(m=>m.status==='finished');
+  const upcoming = matches.filter(m=>m.status==='upcoming');
+
+  const liveEl = document.getElementById('live-matches');
+  const finEl  = document.getElementById('finished-matches');
+  const upEl   = document.getElementById('upcoming-matches');
+  const todayEl= document.getElementById('today-matches');
+  document.getElementById('today-section').style.display = 'none';
+
+  liveEl.innerHTML = live.length ? live.map(renderMatch).join('') : '<div class="loading">Geen live wedstrijden op dit moment</div>';
+  finEl.innerHTML  = finished.length ? finished.map(renderMatch).join('') : '<div class="loading">Nog geen afgespeelde wedstrijden</div>';
+  upEl.innerHTML   = upcoming.length ? upcoming.map(renderMatch).join('') : '<div class="loading">Geen komende wedstrijden gevonden</div>';
+
+  if (!data) {
+    document.querySelector('.live-badge').innerHTML = '<span>⚠️ Offline modus — live data niet beschikbaar</span>';
+    document.querySelector('.live-badge').style.borderColor = '#888';
+    document.querySelector('.live-badge').style.color = '#888';
+  }
+}
+
+function renderGroups() {
+  const grid = document.getElementById('groups-grid');
+  grid.innerHTML = GROUPS.map(g => {
+    const sorted = [...g.teams].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga));
+    const rows = sorted.map((t,i) => `
+      <tr class="${i<2?'qualify':''}">
+        <td><span class="team-flag">${t.flag}</span> <span class="team-name-short">${t.name}</span></td>
+        <td>${t.mp}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td>
+        <td>${t.gf}</td><td>${t.ga}</td><td class="pts">${t.pts}</td>
+      </tr>`).join('');
+    return `
+      <div class="group-card">
+        <div class="group-title">GROEP ${g.name}</div>
+        <table class="group-table">
+          <tr><th>Team</th><th>W</th><th>W</th><th>G</th><th>V</th><th>+</th><th>-</th><th>Pts</th></tr>
+          ${rows}
+        </table>
+      </div>`;
+  }).join('');
+}
+
+function renderProno() {
+  const sections = [
+    ['prono-qf', PRONOSTIEKEN.qf, false],
+    ['prono-sf', PRONOSTIEKEN.sf, false],
+    ['prono-final', PRONOSTIEKEN.final, false],
+    ['prono-awards', PRONOSTIEKEN.awards, true],
+  ];
+  sections.forEach(([id, data, isAward]) => {
+    document.getElementById(id).innerHTML = data.map(p => `
+      <div class="prono-card">
+        ${!isAward ? `
+        <div class="prono-match">
+          <div class="prono-team">${p.home}</div>
+          <div class="prono-score">${p.score||'🆚'}</div>
+          <div class="prono-team right">${p.away}</div>
+        </div>` : `
+        <div style="font-weight:700;font-size:1rem;margin-bottom:6px">${p.home} <span style="color:#FFD700">${p.away}</span></div>
+        `}
+        <div class="prono-reason">${p.reason}</div>
+        <span class="confidence conf-${p.conf}">${p.conf==='high'?'Zeer zeker':p.conf==='med'?'Waarschijnlijk':'Onzeker'}</span>
+      </div>`).join('');
+  });
+}
+
+function showTab(t) {
+  ['results','groups','prono'].forEach(name => {
+    document.getElementById('tab-'+name).style.display = name===t?'block':'none';
+  });
+  document.querySelectorAll('.tab').forEach((el,i) => {
+    el.classList.toggle('active', ['results','groups','prono'][i]===t);
+  });
+  if (t==='groups' && !document.getElementById('groups-grid').children.length) renderGroups();
+}
+
+/* Init */
+loadResults();
+renderGroups();
+renderProno();
+
+/* Auto-refresh every 60 seconds */
+setInterval(loadResults, 60000);
+</script>
+</body>
+</html>
