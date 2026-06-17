@@ -4,28 +4,36 @@
   <meta charset="UTF-8">
   <title>Jeu de Football ⚽</title>
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       background: #1a7a1a;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      margin: 0;
+      min-height: 100vh;
       font-family: Arial, sans-serif;
       color: white;
     }
 
     h1 {
-      font-size: 2em;
+      font-size: 2.2em;
       margin-bottom: 10px;
       text-shadow: 2px 2px black;
     }
 
-    #score {
-      font-size: 1.5em;
-      margin-bottom: 15px;
+    #infos {
+      display: flex;
+      gap: 30px;
+      font-size: 1.3em;
+      margin-bottom: 12px;
+      background: rgba(0,0,0,0.4);
+      padding: 8px 24px;
+      border-radius: 10px;
     }
+
+    #tirs-restants { color: #ffdd00; }
 
     #terrain {
       position: relative;
@@ -42,82 +50,83 @@
       content: '';
       position: absolute;
       left: 50%;
-      top: 0;
-      bottom: 0;
+      top: 0; bottom: 0;
       width: 2px;
-      background: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.2);
     }
 
     #but {
       position: absolute;
-      top: 0;
-      left: 150px;
-      width: 200px;
-      height: 60px;
+      top: 0; left: 150px;
+      width: 200px; height: 65px;
       background: rgba(255,255,255,0.15);
       border: 3px solid white;
       border-top: none;
-      box-sizing: border-box;
     }
 
     #gardien {
       position: absolute;
-      top: 10px;
-      left: 210px;
-      width: 60px;
-      height: 60px;
+      top: 8px; left: 210px;
+      width: 60px; height: 60px;
       font-size: 2.5em;
       text-align: center;
       line-height: 60px;
-      transition: left 0.1s;
     }
 
     #ballon {
       position: absolute;
-      bottom: 30px;
-      left: 230px;
+      bottom: 30px; left: 230px;
       font-size: 2em;
-      width: 40px;
-      height: 40px;
+      width: 40px; height: 40px;
       text-align: center;
       line-height: 40px;
-      transition: none;
     }
 
     #fleche {
       position: absolute;
-      bottom: 75px;
-      left: 238px;
+      bottom: 75px; left: 238px;
       font-size: 1.5em;
-      transition: left 0.1s;
     }
 
-    #message {
+    /* Overlay pour BUT / RATÉ / FIN / VICTOIRE */
+    #overlay {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 2.5em;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.55);
+      border-radius: 8px;
+    }
+
+    #overlay.visible { display: flex; }
+
+    #overlay-emoji { font-size: 4em; }
+    #overlay-texte {
+      font-size: 2.2em;
       font-weight: bold;
       text-shadow: 3px 3px black;
-      display: none;
+      margin: 6px 0;
+    }
+    #overlay-sous {
+      font-size: 1.1em;
+      color: #ddd;
     }
 
     #instructions {
-      margin-top: 15px;
+      margin-top: 14px;
       text-align: center;
       font-size: 1em;
       background: rgba(0,0,0,0.4);
-      padding: 10px 20px;
+      padding: 8px 20px;
       border-radius: 10px;
     }
 
-    #instructions span {
-      font-size: 1.3em;
-    }
+    #instructions span { font-size: 1.3em; }
 
     #bouton-rejouer {
-      margin-top: 15px;
+      margin-top: 14px;
       padding: 12px 30px;
       font-size: 1.2em;
       background: #ff6600;
@@ -127,23 +136,42 @@
       cursor: pointer;
       display: none;
     }
+    #bouton-rejouer:hover { background: #ff8800; }
 
-    #bouton-rejouer:hover {
-      background: #ff8800;
+    /* Étoiles victoire */
+    .etoile {
+      position: absolute;
+      font-size: 2em;
+      animation: tomber 1s ease-in forwards;
+      pointer-events: none;
+    }
+    @keyframes tomber {
+      from { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+      to   { transform: translateY(400px) rotate(360deg); opacity: 0; }
     }
   </style>
 </head>
 <body>
 
   <h1>⚽ Jeu de Football ⚽</h1>
-  <div id="score">Buts : 0 | Arrêts : 0</div>
+
+  <div id="infos">
+    <span>Buts : <strong id="nb-buts">0</strong></span>
+    <span id="tirs-restants">Tirs restants : <strong id="nb-tirs">5</strong></span>
+    <span>Arrêts : <strong id="nb-arrets">0</strong></span>
+  </div>
 
   <div id="terrain">
     <div id="but"></div>
     <div id="gardien">🧤</div>
     <div id="fleche">⬆️</div>
     <div id="ballon">⚽</div>
-    <div id="message"></div>
+
+    <div id="overlay">
+      <div id="overlay-emoji"></div>
+      <div id="overlay-texte"></div>
+      <div id="overlay-sous"></div>
+    </div>
   </div>
 
   <div id="instructions">
@@ -153,72 +181,127 @@
   <button id="bouton-rejouer" onclick="rejouer()">🔄 Rejouer !</button>
 
   <script>
+    // ── Sons avec Web Audio API (pas besoin de fichiers MP3) ──
+    const audio = new (window.AudioContext || window.webkitAudioContext)();
+
+    function jouerSon(type) {
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      osc.connect(gain);
+      gain.connect(audio.destination);
+
+      if (type === 'but') {
+        // Mélodie joyeuse : do-mi-sol-do
+        const notes = [261, 329, 392, 523];
+        notes.forEach((freq, i) => {
+          const o = audio.createOscillator();
+          const g = audio.createGain();
+          o.connect(g); g.connect(audio.destination);
+          o.frequency.value = freq;
+          o.type = 'square';
+          g.gain.setValueAtTime(0.3, audio.currentTime + i * 0.15);
+          g.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + i * 0.15 + 0.2);
+          o.start(audio.currentTime + i * 0.15);
+          o.stop(audio.currentTime + i * 0.15 + 0.2);
+        });
+      } else if (type === 'rate') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(200, audio.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(80, audio.currentTime + 0.4);
+        gain.gain.setValueAtTime(0.3, audio.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.4);
+        osc.start(); osc.stop(audio.currentTime + 0.4);
+      } else if (type === 'victoire') {
+        // Fanfare
+        const notes = [523, 659, 784, 1046, 784, 1046];
+        notes.forEach((freq, i) => {
+          const o = audio.createOscillator();
+          const g = audio.createGain();
+          o.connect(g); g.connect(audio.destination);
+          o.frequency.value = freq;
+          o.type = 'square';
+          g.gain.setValueAtTime(0.25, audio.currentTime + i * 0.12);
+          g.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + i * 0.12 + 0.2);
+          o.start(audio.currentTime + i * 0.12);
+          o.stop(audio.currentTime + i * 0.12 + 0.3);
+        });
+      } else if (type === 'perdu') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, audio.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, audio.currentTime + 0.8);
+        gain.gain.setValueAtTime(0.3, audio.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.8);
+        osc.start(); osc.stop(audio.currentTime + 0.8);
+      }
+    }
+
+    // ── État du jeu ──
     let buts = 0;
     let arrets = 0;
-    let positionBallon = 230; // position X du ballon
+    let tirsRestants = 5;
+    let positionBallon = 230;
     let enJeu = true;
 
-    const ballon = document.getElementById('ballon');
-    const gardien = document.getElementById('gardien');
-    const fleche = document.getElementById('fleche');
-    const message = document.getElementById('message');
-    const scoreDiv = document.getElementById('score');
-    const boutonRejouer = document.getElementById('bouton-rejouer');
+    const ballonEl   = document.getElementById('ballon');
+    const gardienEl  = document.getElementById('gardien');
+    const flecheEl   = document.getElementById('fleche');
+    const overlay    = document.getElementById('overlay');
+    const oEmoji     = document.getElementById('overlay-emoji');
+    const oTexte     = document.getElementById('overlay-texte');
+    const oSous      = document.getElementById('overlay-sous');
+    const bouton     = document.getElementById('bouton-rejouer');
 
-    // Le gardien bouge tout seul
+    // ── Gardien qui bouge ──
     let posGardien = 210;
-    let directionGardien = 1;
-    let vitesseGardien = 3;
+    let dirGardien = 1;
+    let vitesse = 3;
+    let animGardien;
 
     function bougerGardien() {
-      if (!enJeu) return;
-      posGardien += directionGardien * vitesseGardien;
-      if (posGardien > 290) directionGardien = -1;
-      if (posGardien < 150) directionGardien = 1;
-      gardien.style.left = posGardien + 'px';
-      requestAnimationFrame(bougerGardien);
+      posGardien += dirGardien * vitesse;
+      if (posGardien > 290) dirGardien = -1;
+      if (posGardien < 150) dirGardien = 1;
+      gardienEl.style.left = posGardien + 'px';
+      animGardien = requestAnimationFrame(bougerGardien);
     }
 
     bougerGardien();
 
-    // Touches du clavier
+    // ── Clavier ──
     document.addEventListener('keydown', function(e) {
       if (!enJeu) return;
 
       if (e.key === 'ArrowLeft') {
         positionBallon = Math.max(20, positionBallon - 20);
-        ballon.style.left = positionBallon + 'px';
-        fleche.style.left = (positionBallon + 8) + 'px';
+        ballonEl.style.left = positionBallon + 'px';
+        flecheEl.style.left = (positionBallon + 8) + 'px';
       }
-
       if (e.key === 'ArrowRight') {
         positionBallon = Math.min(440, positionBallon + 20);
-        ballon.style.left = positionBallon + 'px';
-        fleche.style.left = (positionBallon + 8) + 'px';
+        ballonEl.style.left = positionBallon + 'px';
+        flecheEl.style.left = (positionBallon + 8) + 'px';
       }
-
       if (e.key === 'ArrowUp') {
         tirer();
       }
     });
 
+    // ── Tir ──
     function tirer() {
+      if (tirsRestants <= 0 || !enJeu) return;
       enJeu = false;
-      fleche.style.display = 'none';
+      tirsRestants--;
+      document.getElementById('nb-tirs').textContent = tirsRestants;
+      flecheEl.style.display = 'none';
 
-      // Animer le ballon vers le haut
-      let posY = 290; // bas du terrain (bottom en px depuis le haut)
-      let cibleX = positionBallon;
+      let posY = 290;
+      const cibleX = positionBallon;
+      ballonEl.style.bottom = 'auto';
+      ballonEl.style.top = posY + 'px';
 
-      ballon.style.transition = 'none';
-      ballon.style.bottom = 'auto';
-      ballon.style.top = posY + 'px';
-      ballon.style.left = cibleX + 'px';
-
-      let intervalle = setInterval(function() {
+      const intervalle = setInterval(function() {
         posY -= 15;
-        ballon.style.top = posY + 'px';
-
+        ballonEl.style.top = posY + 'px';
         if (posY <= 20) {
           clearInterval(intervalle);
           verifierBut(cibleX);
@@ -226,51 +309,110 @@
       }, 30);
     }
 
+    // ── Vérifier but ──
     function verifierBut(xBallon) {
-      let centreBallon = xBallon + 20;
-      let centreGardien = posGardien + 30;
+      const centreBallon  = xBallon + 20;
+      const centreGardien = posGardien + 30;
+      const distance = Math.abs(centreBallon - centreGardien);
+      const dansBut  = xBallon >= 150 && xBallon <= 310;
 
-      let distance = Math.abs(centreBallon - centreGardien);
-
-      if (xBallon >= 150 && xBallon <= 310 && distance > 40) {
-        // BUT !
+      if (dansBut && distance > 40) {
         buts++;
-        afficherMessage('⚽ BUT !!!', '#ffff00');
-        vitesseGardien += 0.5; // le gardien devient plus rapide !
-      } else if (xBallon < 150 || xBallon > 310) {
-        // À côté du but
-        afficherMessage('😬 À côté !', '#ff8800');
+        document.getElementById('nb-buts').textContent = buts;
+        jouerSon('but');
+        afficherOverlay('⚽', 'BUT !!!', '', '#ffff00');
+        vitesse += 0.5;
+      } else if (!dansBut) {
         arrets++;
+        document.getElementById('nb-arrets').textContent = arrets;
+        jouerSon('rate');
+        afficherOverlay('😬', 'À côté !', 'Vise mieux !', '#ff8800');
       } else {
-        // Arrêté par le gardien
         arrets++;
-        afficherMessage('🧤 Arrêté !', '#ff4444');
+        document.getElementById('nb-arrets').textContent = arrets;
+        jouerSon('rate');
+        afficherOverlay('🧤', 'Arrêté !', 'Le gardien est trop fort !', '#ff4444');
       }
 
-      scoreDiv.textContent = 'Buts : ' + buts + ' | Arrêts : ' + arrets;
-      boutonRejouer.style.display = 'inline-block';
+      setTimeout(function() {
+        overlay.classList.remove('visible');
+
+        if (tirsRestants <= 0) {
+          setTimeout(finDePartie, 300);
+        } else {
+          reinitBallon();
+          enJeu = true;
+        }
+      }, 1200);
     }
 
-    function afficherMessage(texte, couleur) {
-      message.textContent = texte;
-      message.style.color = couleur;
-      message.style.display = 'block';
+    // ── Fin de partie ──
+    function finDePartie() {
+      cancelAnimationFrame(animGardien);
+
+      if (buts >= 3) {
+        jouerSon('victoire');
+        afficherOverlay('🏆', 'Tu as gagné !', buts + ' buts sur 5 tirs — Champion !', '#ffdd00');
+        lancerEtoiles();
+      } else if (buts >= 1) {
+        jouerSon('perdu');
+        afficherOverlay('😅', 'Pas mal !', buts + ' buts sur 5 — Réessaie !', '#ff8800');
+      } else {
+        jouerSon('perdu');
+        afficherOverlay('😢', 'Perdu !', '0 but... Le gardien a tout arrêté !', '#ff4444');
+      }
+
+      bouton.style.display = 'inline-block';
     }
 
-    function rejouer() {
-      enJeu = true;
+    // ── Étoiles qui tombent ──
+    function lancerEtoiles() {
+      const terrain = document.getElementById('terrain');
+      const symboles = ['⭐', '🌟', '✨', '🎉', '🎊'];
+      for (let i = 0; i < 18; i++) {
+        setTimeout(function() {
+          const e = document.createElement('div');
+          e.className = 'etoile';
+          e.textContent = symboles[Math.floor(Math.random() * symboles.length)];
+          e.style.left = Math.random() * 460 + 'px';
+          e.style.animationDuration = (0.8 + Math.random() * 0.8) + 's';
+          terrain.appendChild(e);
+          setTimeout(() => e.remove(), 1600);
+        }, i * 80);
+      }
+    }
+
+    // ── Afficher overlay ──
+    function afficherOverlay(emoji, texte, sous, couleur) {
+      oEmoji.textContent = emoji;
+      oTexte.textContent = texte;
+      oTexte.style.color = couleur;
+      oSous.textContent = sous;
+      overlay.classList.add('visible');
+    }
+
+    // ── Remettre le ballon en place ──
+    function reinitBallon() {
       positionBallon = 230;
+      ballonEl.style.top  = 'auto';
+      ballonEl.style.bottom = '30px';
+      ballonEl.style.left = positionBallon + 'px';
+      flecheEl.style.left = '238px';
+      flecheEl.style.display = 'block';
+    }
 
-      ballon.style.top = 'auto';
-      ballon.style.bottom = '30px';
-      ballon.style.left = positionBallon + 'px';
-
-      fleche.style.left = '238px';
-      fleche.style.display = 'block';
-
-      message.style.display = 'none';
-      boutonRejouer.style.display = 'none';
-
+    // ── Rejouer ──
+    function rejouer() {
+      buts = 0; arrets = 0; tirsRestants = 5;
+      vitesse = 3;
+      document.getElementById('nb-buts').textContent   = '0';
+      document.getElementById('nb-arrets').textContent = '0';
+      document.getElementById('nb-tirs').textContent   = '5';
+      bouton.style.display = 'none';
+      overlay.classList.remove('visible');
+      reinitBallon();
+      enJeu = true;
+      cancelAnimationFrame(animGardien);
       bougerGardien();
     }
   </script>
