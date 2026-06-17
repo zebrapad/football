@@ -7,169 +7,159 @@
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: #050d1a;
-  color: #fff;
-  min-height: 100vh;
-  overflow: hidden;
+  font-family:'Segoe UI',Arial,sans-serif;
+  background:#050d1a; color:#fff;
+  min-height:100vh; overflow:hidden;
 }
 
-/* ── SCREENS ── */
 .screen { display:none; position:fixed; inset:0; }
 .screen.active { display:flex; flex-direction:column; }
 
-/* ── SCREEN 1: TEAM SELECT ── */
+/* ── TEAM SELECT ── */
 #s-team {
-  background: radial-gradient(ellipse at center, #0d2137 0%, #050d1a 100%);
-  align-items: center;
-  justify-content: center;
-  gap: 28px;
+  background:radial-gradient(ellipse at center,#0d2137 0%,#050d1a 100%);
+  align-items:center; justify-content:center; gap:24px;
 }
-.fifa-title { font-size: 0.85rem; letter-spacing: 4px; color: #FFD700; opacity:.7; }
-.fifa-main  { font-size: 2.4rem; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 40px rgba(255,215,0,.4); }
-.team-grid  { display: flex; gap: 20px; }
+.fifa-title { font-size:.85rem; letter-spacing:4px; color:#FFD700; opacity:.7; }
+.fifa-main  { font-size:2.2rem; font-weight:900; letter-spacing:2px; text-shadow:0 0 40px rgba(255,215,0,.4); }
+.team-grid  { display:flex; gap:20px; }
 .team-card  {
-  width: 160px; padding: 28px 16px; border-radius: 16px;
-  background: rgba(255,255,255,.06);
-  border: 2px solid rgba(255,255,255,.12);
-  cursor: pointer; text-align: center;
-  transition: transform .2s, border-color .2s, box-shadow .2s;
+  width:160px; padding:28px 16px; border-radius:16px;
+  background:rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.12);
+  cursor:pointer; text-align:center; transition:transform .2s,border-color .2s,box-shadow .2s;
 }
-.team-card:hover { transform: translateY(-8px); border-color: #FFD700; box-shadow: 0 16px 40px rgba(255,215,0,.25); }
-.team-card .flag { font-size: 3.5rem; }
-.team-card .name { font-size: 1rem; font-weight: 700; margin-top: 10px; }
-.team-card .group { font-size: .72rem; color: rgba(255,255,255,.5); margin-top: 4px; }
-.nav-links { display: flex; gap: 12px; }
+.team-card:hover { transform:translateY(-8px); border-color:#FFD700; box-shadow:0 16px 40px rgba(255,215,0,.25); }
+.team-card .flag { font-size:3.5rem; }
+.team-card .name { font-size:1rem; font-weight:700; margin-top:10px; }
+.team-card .group { font-size:.72rem; color:rgba(255,255,255,.5); margin-top:4px; }
+.nav-links { display:flex; gap:12px; }
 .nav-btn {
-  padding: 9px 20px; border-radius: 24px; text-decoration: none;
-  font-size: .82rem; font-weight: 600;
-  background: rgba(255,255,255,.08);
-  color: rgba(255,255,255,.8); border: 1px solid rgba(255,255,255,.15);
-  transition: background .2s;
+  padding:9px 20px; border-radius:24px; text-decoration:none;
+  font-size:.82rem; font-weight:600; background:rgba(255,255,255,.08);
+  color:rgba(255,255,255,.8); border:1px solid rgba(255,255,255,.15);
 }
-.nav-btn:hover { background: rgba(255,255,255,.18); }
+.nav-btn:hover { background:rgba(255,255,255,.18); }
 
-/* ── SCREEN 2: PLAYER SELECT ── */
+/* ── PLAYER SELECT ── */
 #s-player {
-  background: #080f1d;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  overflow-y: auto;
+  background:#080f1d; align-items:center; justify-content:center;
+  gap:18px; overflow-y:auto;
 }
-#s-player h2 { font-size: 1.5rem; font-weight: 900; }
-#s-player .sub { font-size: .8rem; color: rgba(255,255,255,.5); }
-.player-grid { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; max-width: 680px; }
+#s-player h2 { font-size:1.5rem; font-weight:900; }
+#s-player .sub { font-size:.8rem; color:rgba(255,255,255,.5); }
+.player-grid { display:flex; flex-wrap:wrap; gap:14px; justify-content:center; max-width:680px; }
 .p-card {
-  width: 130px; border-radius: 14px; overflow: hidden;
-  background: rgba(255,255,255,.05); border: 2px solid rgba(255,255,255,.1);
-  cursor: pointer; transition: transform .2s, border-color .2s;
-  text-align: center;
+  width:128px; border-radius:14px; overflow:hidden;
+  background:rgba(255,255,255,.05); border:2px solid rgba(255,255,255,.1);
+  cursor:pointer; transition:transform .2s,border-color .2s; text-align:center;
 }
-.p-card:hover { transform: translateY(-6px); border-color: #FFD700; }
-.p-avatar {
-  width: 100%; padding: 20px 0 14px;
-  font-size: 2.2rem; font-weight: 900;
-  letter-spacing: -1px;
-}
-.p-name { font-size: .78rem; font-weight: 700; padding: 0 6px; }
-.p-info { font-size: .68rem; color: rgba(255,255,255,.55); padding: 4px 6px 10px; }
-.pos-badge {
-  display: inline-block; padding: 1px 7px; border-radius: 8px;
-  font-size: .62rem; font-weight: 700; margin: 4px 0;
-}
-.pos-ATT { background:#E74C3C; }
-.pos-MID { background:#27AE60; }
-.pos-DEF { background:#3498DB; }
-.pos-GK  { background:#FF6B35; }
+.p-card:hover { transform:translateY(-6px); border-color:#FFD700; }
+.p-avatar { width:100%; padding:18px 0 12px; font-size:2.2rem; font-weight:900; letter-spacing:-1px; }
+.p-name { font-size:.78rem; font-weight:700; padding:0 6px; }
+.p-info { font-size:.68rem; color:rgba(255,255,255,.55); padding:4px 6px 10px; }
+.pos-badge { display:inline-block; padding:1px 7px; border-radius:8px; font-size:.62rem; font-weight:700; margin:4px 0; }
+.pos-ATT{background:#E74C3C;} .pos-MID{background:#27AE60;} .pos-DEF{background:#3498DB;} .pos-GK{background:#FF6B35;}
 .back-btn {
-  padding: 8px 22px; border-radius: 20px; border: 1px solid rgba(255,255,255,.2);
-  background: none; color: rgba(255,255,255,.7); cursor: pointer; font-size: .85rem;
+  padding:8px 22px; border-radius:20px; border:1px solid rgba(255,255,255,.2);
+  background:none; color:rgba(255,255,255,.7); cursor:pointer; font-size:.85rem;
 }
-.back-btn:hover { background: rgba(255,255,255,.1); }
 
-/* ── SCREEN 3: GAME ── */
-#s-game { background: #040b14; flex-direction: column; }
+/* ── LEVEL SELECT ── */
+#s-level {
+  background:#080f1d; align-items:center; justify-content:center; gap:22px;
+}
+#s-level h2 { font-size:1.5rem; font-weight:900; }
+#s-level .sub { font-size:.8rem; color:rgba(255,255,255,.5); }
+.level-grid { display:flex; flex-direction:column; gap:12px; width:100%; max-width:340px; }
+.lvl-btn {
+  display:flex; align-items:center; gap:14px;
+  padding:16px 20px; border-radius:14px;
+  background:rgba(255,255,255,.05); border:2px solid rgba(255,255,255,.1);
+  cursor:pointer; transition:all .2s; color:#fff; text-align:left;
+}
+.lvl-btn:hover { border-color:#FFD700; background:rgba(255,215,0,.08); transform:translateX(6px); }
+.lvl-icon { font-size:1.8rem; }
+.lvl-name { font-size:1rem; font-weight:700; }
+.lvl-desc { font-size:.72rem; color:rgba(255,255,255,.5); margin-top:2px; }
 
-/* HUD */
+/* ── GAME ── */
+#s-game { background:#040b14; }
+
 #hud {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 20px; background: rgba(0,0,0,.6);
-  backdrop-filter: blur(10px); flex-shrink: 0; z-index: 10;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 20px; background:rgba(0,0,0,.6);
+  backdrop-filter:blur(10px); flex-shrink:0; z-index:10;
 }
-#hud-team { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-#hud-center { text-align: center; }
-#hud-shots { font-size: 1.2rem; letter-spacing: 2px; }
-#hud-label { font-size: .6rem; color: rgba(255,255,255,.4); letter-spacing: 2px; margin-top: 2px; }
-#hud-goals { font-size: 2rem; font-weight: 900; color: #FFD700; }
-#hud-goals-lbl { font-size: .6rem; color: rgba(255,255,255,.4); letter-spacing: 2px; text-align:right; }
+#hud-team { font-size:1rem; font-weight:700; display:flex; align-items:center; gap:8px; }
+#hud-center { text-align:center; }
+#hud-shots { font-size:1.1rem; letter-spacing:2px; }
+#hud-label { font-size:.6rem; color:rgba(255,255,255,.4); letter-spacing:2px; margin-top:2px; }
+#hud-level-badge {
+  font-size:.65rem; padding:2px 8px; border-radius:8px;
+  font-weight:700; margin-top:3px;
+}
+#hud-goals { font-size:2rem; font-weight:900; color:#FFD700; }
+#hud-goals-lbl { font-size:.6rem; color:rgba(255,255,255,.4); letter-spacing:2px; text-align:right; }
 
-/* PITCH */
 #pitch {
-  flex: 1; position: relative; overflow: hidden;
-  background: radial-gradient(ellipse at 50% 120%, #1a5c1a 0%, #0f3d0f 50%, #081f08 100%);
+  flex:1; position:relative; overflow:hidden;
+  background:radial-gradient(ellipse at 50% 120%,#1a5c1a 0%,#0f3d0f 50%,#081f08 100%);
 }
-
-/* Pitch lines */
 #pitch::before {
   content:''; position:absolute; inset:0;
-  background:
-    linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
-  background-size: 60px 60px;
+  background:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
+             linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:60px 60px;
 }
 
 /* Goal */
 #goal {
-  position:absolute; top:20px; left:50%; transform:translateX(-50%);
-  width:260px; height:100px;
-  border: 5px solid rgba(255,255,255,.9);
-  border-bottom: none;
-  background: repeating-linear-gradient(
-    90deg, rgba(255,255,255,.04) 0px, rgba(255,255,255,.04) 18px, transparent 18px, transparent 36px
-  ),
-  repeating-linear-gradient(
-    0deg, rgba(255,255,255,.04) 0px, rgba(255,255,255,.04) 18px, transparent 18px, transparent 36px
-  );
-  box-shadow: 0 0 30px rgba(255,255,255,.1), inset 0 0 20px rgba(0,0,0,.5);
+  position:absolute; top:18px; left:50%; transform:translateX(-50%);
+  width:280px; height:120px;
+  border:5px solid rgba(255,255,255,.9); border-bottom:none;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0,rgba(255,255,255,.03) 18px,transparent 18px,transparent 36px),
+             repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0,rgba(255,255,255,.03) 18px,transparent 18px,transparent 36px);
+  box-shadow:0 0 30px rgba(255,255,255,.1),inset 0 0 20px rgba(0,0,0,.5);
 }
 
 /* Penalty box */
 #pbox {
-  position:absolute; top:10px; left:50%; transform:translateX(-50%);
-  width:380px; height:200px;
-  border: 2px solid rgba(255,255,255,.2); border-top:none;
+  position:absolute; top:8px; left:50%; transform:translateX(-50%);
+  width:400px; height:210px;
+  border:2px solid rgba(255,255,255,.15); border-top:none;
 }
 
-/* Aim crosshair */
+/* 2D aim crosshair inside goal */
 #aim {
-  position:absolute; top:95px; left:50%; transform:translateX(-50%);
-  width:28px; height:28px;
-  border: 3px solid #FFD700; border-radius: 50%;
-  transition: left .05s;
-  box-shadow: 0 0 12px rgba(255,215,0,.6);
+  position:absolute; width:32px; height:32px;
+  border:3px solid #FFD700; border-radius:50%;
+  box-shadow:0 0 14px rgba(255,215,0,.7);
+  transform:translate(-50%,-50%);
+  pointer-events:none; z-index:5;
 }
-#aim::before, #aim::after {
-  content:''; position:absolute; background:#FFD700;
-  box-shadow: 0 0 6px rgba(255,215,0,.8);
-}
-#aim::before { width:2px; height:14px; left:10px; top:-7px; }
-#aim::after  { width:14px; height:2px; top:10px; left:-7px; }
+#aim::before,#aim::after { content:''; position:absolute; background:#FFD700; }
+#aim::before { width:2px; height:16px; left:12px; top:-10px; }
+#aim::after  { width:16px; height:2px; top:12px; left:-10px; }
 
 /* Goalkeeper */
 #gk {
-  position:absolute; top:22px; left:50%; transform:translateX(-50%);
-  font-size:2.6rem; transition:left .08s linear;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,.6));
+  position:absolute; top:20px; left:50%; transform:translateX(-50%);
+  font-size:2.8rem; transition:left .08s linear;
+  filter:drop-shadow(0 4px 8px rgba(0,0,0,.6)); z-index:3;
+}
+
+/* Defender(s) */
+.defender {
+  position:absolute; font-size:2rem;
+  transform:translateX(-50%);
+  filter:drop-shadow(0 4px 8px rgba(0,0,0,.8));
+  transition:left .12s linear; z-index:4;
 }
 
 /* Ball */
 #ball {
   position:absolute; bottom:60px; left:50%; transform:translateX(-50%);
-  font-size:2.4rem;
-  filter: drop-shadow(0 6px 12px rgba(0,0,0,.8));
-  transition: none;
+  font-size:2.4rem; filter:drop-shadow(0 6px 12px rgba(0,0,0,.8));
 }
 
 /* Penalty spot */
@@ -178,85 +168,93 @@ body {
   width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.4);
 }
 
-/* Player card (bottom-left) */
+/* Aim guide lines on goal */
+.aim-zone {
+  position:absolute; border:1px dashed rgba(255,215,0,.2);
+  pointer-events:none;
+}
+
+/* Player card */
 #player-card {
   position:absolute; bottom:16px; left:16px;
-  background: rgba(0,0,0,.75); backdrop-filter:blur(8px);
-  border: 1px solid rgba(255,255,255,.15); border-radius: 12px;
-  padding: 10px 14px; display: flex; align-items:center; gap:10px;
-  min-width: 160px;
+  background:rgba(0,0,0,.75); backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.15); border-radius:12px;
+  padding:10px 14px; display:flex; align-items:center; gap:10px; min-width:160px;
 }
 #pc-avatar {
   width:40px; height:40px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
-  font-size:1.1rem; font-weight:900;
-  border: 2px solid #FFD700; flex-shrink:0;
+  font-size:1.1rem; font-weight:900; border:2px solid #FFD700; flex-shrink:0;
 }
 #pc-name { font-size:.8rem; font-weight:700; }
 #pc-info { font-size:.65rem; color:rgba(255,255,255,.55); }
 
-/* Controls hint */
+/* Controls */
 #controls-hint {
   position:absolute; bottom:16px; right:16px;
   background:rgba(0,0,0,.7); border-radius:10px; padding:8px 12px;
-  font-size:.7rem; color:rgba(255,255,255,.5); text-align:center; line-height:1.7;
+  font-size:.7rem; color:rgba(255,255,255,.5); text-align:center; line-height:1.8;
 }
 
-/* Mobile buttons */
+/* Mobile buttons - cross layout */
 #mobile-btns {
   display:none; position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
-  gap:16px;
+  width:180px; height:180px; pointer-events:none;
 }
 .m-btn {
-  width:60px; height:60px; border-radius:50%; border:none;
-  font-size:1.4rem; cursor:pointer; font-weight:900;
+  position:absolute; width:54px; height:54px; border-radius:50%; border:none;
+  font-size:1.2rem; cursor:pointer; font-weight:900;
   background:rgba(255,255,255,.15); color:#fff;
-  backdrop-filter:blur(4px);
+  backdrop-filter:blur(4px); pointer-events:all;
   -webkit-tap-highlight-color:transparent;
+  display:flex; align-items:center; justify-content:center;
 }
+#mb-up    { top:0;   left:63px; }
+#mb-down  { bottom:0; left:63px; }
+#mb-left  { left:0;  top:63px; }
+#mb-right { right:0; top:63px; }
+#mb-shoot { left:63px; top:63px; background:rgba(255,215,0,.3); font-size:1.5rem; }
 
-/* Flash overlay */
+/* Flash */
 #flash {
   position:absolute; inset:0; pointer-events:none;
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   opacity:0; transition:opacity .3s;
 }
 #flash.show { opacity:1; }
-#flash-msg { font-size:3.5rem; font-weight:900; text-shadow:0 4px 20px rgba(0,0,0,.5); }
-#flash-sub { font-size:1.1rem; margin-top:6px; opacity:.8; }
+#flash-msg { font-size:3.2rem; font-weight:900; text-shadow:0 4px 20px rgba(0,0,0,.5); }
+#flash-sub { font-size:1rem; margin-top:6px; opacity:.8; }
 
-/* End overlay */
+/* End */
 #end {
   position:absolute; inset:0;
   background:rgba(0,0,0,.85); backdrop-filter:blur(8px);
-  display:none; flex-direction:column; align-items:center; justify-content:center; gap:20px;
+  display:none; flex-direction:column; align-items:center; justify-content:center; gap:16px;
 }
 #end.show { display:flex; }
-#end-title { font-size:3rem; font-weight:900; }
-#end-score { font-size:1.3rem; color:rgba(255,255,255,.7); }
+#end-title { font-size:2.8rem; font-weight:900; }
+#end-score { font-size:1.2rem; color:rgba(255,255,255,.7); }
+#end-level-up {
+  background:rgba(255,215,0,.15); border:1px solid #FFD700;
+  padding:10px 20px; border-radius:12px; font-size:.9rem; display:none;
+}
 .end-btn {
   padding:12px 28px; border-radius:24px; border:none;
   font-size:1rem; font-weight:700; cursor:pointer; transition:transform .15s;
 }
 .end-btn:hover { transform:scale(1.05); }
-#btn-replay { background:#FFD700; color:#000; }
-#btn-menu   { background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.2); }
+#btn-replay    { background:#FFD700; color:#000; }
+#btn-next-lvl  { background:#2ecc71; color:#000; display:none; }
+#btn-menu      { background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.2); }
 
-/* Stars */
-.star-fall {
-  position:absolute; top:-20px; font-size:1.4rem;
-  animation:fall 1.5s ease-in forwards;
-}
-@keyframes fall {
-  to { transform:translateY(110vh) rotate(360deg); opacity:0; }
-}
+.star-fall { position:absolute; top:-20px; font-size:1.4rem; animation:fall 1.5s ease-in forwards; }
+@keyframes fall { to { transform:translateY(110vh) rotate(360deg); opacity:0; } }
 
-@media (max-width:600px) {
-  #mobile-btns { display:flex; }
+@media(max-width:600px) {
+  #mobile-btns { display:block; }
   #controls-hint { display:none; }
   .team-grid { flex-direction:column; align-items:center; }
-  .player-grid { gap:10px; }
-  .p-card { width:110px; }
+  .level-grid { padding:0 16px; }
 }
 </style>
 </head>
@@ -279,7 +277,8 @@ body {
     </div>
   </div>
   <div class="nav-links">
-    <a class="nav-btn" href="players.html">⭐ Statistieken</a>
+    <a class="nav-btn" href="index.html">🏠 Menu</a>
+    <a class="nav-btn" href="players.html">⭐ Stats</a>
     <a class="nav-btn" href="quiz.html">🎯 Quiz</a>
   </div>
 </div>
@@ -287,14 +286,50 @@ body {
 <!-- SCREEN 2: PLAYER SELECT -->
 <div id="s-player" class="screen">
   <h2 id="ps-title">Kies je schutter</h2>
-  <div class="sub">Wie gaat de penalty nemen?</div>
+  <div class="sub">Wie neemt de penalty?</div>
   <div id="player-grid" class="player-grid"></div>
   <button class="back-btn" onclick="showScreen('s-team')">← Terug</button>
 </div>
 
-<!-- SCREEN 3: GAME -->
+<!-- SCREEN 3: LEVEL SELECT -->
+<div id="s-level" class="screen">
+  <h2>🎮 Kies je niveau</h2>
+  <div class="sub" id="lvl-player-name"></div>
+  <div class="level-grid">
+    <div class="lvl-btn" onclick="startLevel(1)">
+      <div class="lvl-icon">🟢</div>
+      <div>
+        <div class="lvl-name">Facile</div>
+        <div class="lvl-desc">Geen verdediger · Trage keeper</div>
+      </div>
+    </div>
+    <div class="lvl-btn" onclick="startLevel(2)">
+      <div class="lvl-icon">🟡</div>
+      <div>
+        <div class="lvl-name">Moyen</div>
+        <div class="lvl-desc">1 verdediger · Normale keeper</div>
+      </div>
+    </div>
+    <div class="lvl-btn" onclick="startLevel(3)">
+      <div class="lvl-icon">🟠</div>
+      <div>
+        <div class="lvl-name">Difficile</div>
+        <div class="lvl-desc">1 bewegende verdediger · Snelle keeper</div>
+      </div>
+    </div>
+    <div class="lvl-btn" onclick="startLevel(4)">
+      <div class="lvl-icon">🔴</div>
+      <div>
+        <div class="lvl-name">Légendaire</div>
+        <div class="lvl-desc">2 verdedigers · Zeer snelle keeper</div>
+      </div>
+    </div>
+  </div>
+  <button class="back-btn" onclick="showScreen('s-player')">← Terug</button>
+</div>
+
+<!-- SCREEN 4: GAME -->
 <div id="s-game" class="screen">
-  <!-- HUD -->
   <div id="hud">
     <div id="hud-team">
       <span id="hud-flag"></span>
@@ -303,6 +338,7 @@ body {
     <div id="hud-center">
       <div id="hud-shots"></div>
       <div id="hud-label">SHOTS</div>
+      <div id="hud-level-badge"></div>
     </div>
     <div>
       <div id="hud-goals-lbl">GOALS</div>
@@ -310,7 +346,6 @@ body {
     </div>
   </div>
 
-  <!-- PITCH -->
   <div id="pitch">
     <div id="pbox"></div>
     <div id="goal"></div>
@@ -319,7 +354,6 @@ body {
     <div id="spot"></div>
     <div id="ball">⚽</div>
 
-    <!-- Player card -->
     <div id="player-card">
       <div id="pc-avatar"></div>
       <div>
@@ -328,29 +362,26 @@ body {
       </div>
     </div>
 
-    <!-- Controls hint -->
-    <div id="controls-hint">⬅ ➡ viser<br>⬆ / ESPACE tirer</div>
+    <div id="controls-hint">⬅ ➡ horizontal<br>⬆ ⬇ hauteur<br>ESPACE tirer</div>
 
-    <!-- Mobile buttons -->
     <div id="mobile-btns">
-      <button class="m-btn" id="btn-left" ontouchstart="startMove(-1)" ontouchend="stopMove()">◀</button>
-      <button class="m-btn" id="btn-shoot" ontouchstart="shoot()">🦵</button>
-      <button class="m-btn" id="btn-right" ontouchstart="startMove(1)" ontouchend="stopMove()">▶</button>
+      <button class="m-btn" id="mb-up"    ontouchstart="startMove(0,-1)" ontouchend="stopMove()">▲</button>
+      <button class="m-btn" id="mb-down"  ontouchstart="startMove(0,1)"  ontouchend="stopMove()">▼</button>
+      <button class="m-btn" id="mb-left"  ontouchstart="startMove(-1,0)" ontouchend="stopMove()">◀</button>
+      <button class="m-btn" id="mb-right" ontouchstart="startMove(1,0)"  ontouchend="stopMove()">▶</button>
+      <button class="m-btn" id="mb-shoot" ontouchstart="shoot()">🦵</button>
     </div>
 
-    <!-- Flash -->
-    <div id="flash">
-      <div id="flash-msg"></div>
-      <div id="flash-sub"></div>
-    </div>
+    <div id="flash"><div id="flash-msg"></div><div id="flash-sub"></div></div>
 
-    <!-- End -->
     <div id="end">
       <div id="end-title"></div>
       <div id="end-score"></div>
-      <div style="display:flex;gap:12px;">
-        <button class="end-btn" id="btn-replay" onclick="startGame()">🔄 Rejouer</button>
-        <button class="end-btn" id="btn-menu"   onclick="showScreen('s-team')">🏠 Menu</button>
+      <div id="end-level-up">🎉 Niveau omhoog ontgrendeld!</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+        <button class="end-btn" id="btn-replay"   onclick="startGame()">🔄 Rejouer</button>
+        <button class="end-btn" id="btn-next-lvl" onclick="goNextLevel()">⬆ Volgend niveau</button>
+        <button class="end-btn" id="btn-menu"     onclick="showScreen('s-team')">🏠 Menu</button>
       </div>
     </div>
   </div>
@@ -362,12 +393,12 @@ const SQUADS = {
   belgium: {
     flag:'🇧🇪', name:'Rode Duivels', color:'#CC0001',
     players:[
-      {name:'Kevin De Bruyne',   pos:'MID', goals:26,  assists:45, flag:'🇧🇪', club:'Napoli'},
-      {name:'Romelu Lukaku',     pos:'ATT', goals:77,  assists:18, flag:'🇧🇪', club:'Napoli'},
-      {name:'Jeremy Doku',       pos:'ATT', goals:8,   assists:10, flag:'🇧🇪', club:'Man City'},
-      {name:'Leandro Trossard',  pos:'ATT', goals:16,  assists:14, flag:'🇧🇪', club:'Arsenal'},
-      {name:'Ch. De Ketelaere',  pos:'ATT', goals:11,  assists:9,  flag:'🇧🇪', club:'Atalanta'},
-      {name:'Youri Tielemans',   pos:'MID', goals:17,  assists:12, flag:'🇧🇪', club:'Aston Villa'},
+      {name:'Kevin De Bruyne',  pos:'MID', goals:26,  assists:45, flag:'🇧🇪', club:'Napoli'},
+      {name:'Romelu Lukaku',    pos:'ATT', goals:77,  assists:18, flag:'🇧🇪', club:'Napoli'},
+      {name:'Jeremy Doku',      pos:'ATT', goals:8,   assists:10, flag:'🇧🇪', club:'Man City'},
+      {name:'Leandro Trossard', pos:'ATT', goals:16,  assists:14, flag:'🇧🇪', club:'Arsenal'},
+      {name:'Ch. De Ketelaere', pos:'ATT', goals:11,  assists:9,  flag:'🇧🇪', club:'Atalanta'},
+      {name:'Youri Tielemans',  pos:'MID', goals:17,  assists:12, flag:'🇧🇪', club:'Aston Villa'},
     ]
   },
   spain: {
@@ -383,8 +414,22 @@ const SQUADS = {
   }
 };
 
+const LEVELS = {
+  1: { name:'Facile',     badge:'🟢', gkSpeed:2,   gkHeight:50, defenders:0, defSpeed:0,   needGoals:3 },
+  2: { name:'Moyen',      badge:'🟡', gkSpeed:3.5, gkHeight:60, defenders:1, defSpeed:0,   needGoals:3 },
+  3: { name:'Difficile',  badge:'🟠', gkSpeed:5,   gkHeight:70, defenders:1, defSpeed:1.5, needGoals:4 },
+  4: { name:'Légendaire', badge:'🔴', gkSpeed:7,   gkHeight:90, defenders:2, defSpeed:2,   needGoals:4 },
+};
+
 // ── STATE ─────────────────────────────────────────────────────────
-let team, player, shots, goals, aimX, gkX, gkDir, gkSpeed, shooting, moveDir, moveInterval;
+let team, player, level, levelCfg;
+let shots, goals, aimX, aimY, gkX, gkDir, gkSpeed, shooting;
+let defenders = [];  // [{x, dir, speed}]
+let moveInterval;
+let gkAnim, defAnim;
+
+// Goal dimensions (set after layout)
+const GOAL_W = 280, GOAL_H = 120;
 
 // ── SCREENS ───────────────────────────────────────────────────────
 function showScreen(id) {
@@ -396,33 +441,46 @@ function showScreen(id) {
 function selectTeam(key) {
   team = SQUADS[key];
   document.getElementById('ps-title').textContent = `${team.flag} ${team.name}`;
-
   const grid = document.getElementById('player-grid');
   grid.innerHTML = team.players.map((p,i) => `
     <div class="p-card" onclick="selectPlayer(${i})">
-      <div class="p-avatar" style="background:${team.color}20; color:${team.color}">
-        ${initials(p.name)}
-      </div>
+      <div class="p-avatar" style="background:${team.color}22;color:${team.color}">${initials(p.name)}</div>
       <div class="p-name">${p.name}</div>
       <span class="pos-badge pos-${p.pos}">${posLabel(p.pos)}</span>
-      <div class="p-info">${p.goals} buts · ${p.assists} assists<br>${p.club}</div>
-    </div>
-  `).join('');
-
+      <div class="p-info">${p.goals} buts · ${p.club}</div>
+    </div>`).join('');
   showScreen('s-player');
 }
 
 // ── PLAYER SELECT ─────────────────────────────────────────────────
 function selectPlayer(idx) {
   player = team.players[idx];
+  document.getElementById('lvl-player-name').textContent = `${player.flag} ${player.name}`;
+  showScreen('s-level');
+}
+
+// ── LEVEL SELECT ──────────────────────────────────────────────────
+function startLevel(lvl) {
+  level = lvl;
+  levelCfg = LEVELS[lvl];
   setupHUD();
   startGame();
   showScreen('s-game');
 }
 
+function goNextLevel() {
+  if (level < 4) startLevel(level + 1);
+  else showScreen('s-team');
+}
+
+// ── HUD SETUP ─────────────────────────────────────────────────────
 function setupHUD() {
   document.getElementById('hud-flag').textContent = team.flag;
   document.getElementById('hud-name').textContent = team.name;
+  const badge = document.getElementById('hud-level-badge');
+  badge.textContent = `${levelCfg.badge} ${levelCfg.name}`;
+  badge.style.background = 'rgba(255,215,0,.1)';
+  badge.style.color = '#FFD700';
 
   const av = document.getElementById('pc-avatar');
   av.textContent = initials(player.name);
@@ -434,16 +492,18 @@ function setupHUD() {
 // ── GAME INIT ─────────────────────────────────────────────────────
 function startGame() {
   shots = 5; goals = 0; shooting = false;
-  gkX = 0; gkDir = 1; gkSpeed = 2.5;
-  aimX = 0;
+  gkX = 0; gkDir = 1; gkSpeed = levelCfg.gkSpeed;
+  aimX = 0; aimY = 0.5; // center of goal (0=top, 1=bottom)
 
   updateHUD();
   resetBall();
+  clearDefenders();
+  spawnDefenders();
   document.getElementById('end').classList.remove('show');
   clearFlash();
-  stopGkAnim();
+  stopAnims();
   startGkAnim();
-  startKeyLoop();
+  startDefAnim();
 }
 
 function resetBall() {
@@ -452,17 +512,42 @@ function resetBall() {
   ball.style.left = '50%';
   ball.style.bottom = '60px';
   ball.style.transform = 'translateX(-50%)';
+  ball.style.fontSize = '2.4rem';
   ball.style.opacity = '1';
   shooting = false;
+  updateAimPos();
+}
+
+// ── AIM ───────────────────────────────────────────────────────────
+function updateAimPos() {
+  const pitch = document.getElementById('pitch');
+  const pw = pitch.offsetWidth;
+  const ph = pitch.offsetHeight;
+
+  // Goal: top:18px, left:50%-140px, width:280px, height:120px
+  const goalLeft = pw/2 - GOAL_W/2;
+  const goalTop  = 18;
+
+  const pixX = goalLeft + (GOAL_W/2) + aimX * (GOAL_W/2 - 10);
+  const pixY = goalTop + 10 + aimY * (GOAL_H - 20);
+
+  const aim = document.getElementById('aim');
+  aim.style.left = pixX + 'px';
+  aim.style.top  = pixY + 'px';
+}
+
+const AIM_SPEED = 6;
+function moveAim(dx, dy) {
+  if (shooting) return;
+  aimX = Math.max(-1, Math.min(1, aimX + dx * 0.08));
+  aimY = Math.max(0, Math.min(1, aimY + dy * 0.08));
+  updateAimPos();
 }
 
 // ── GK ANIMATION ─────────────────────────────────────────────────
-let gkAnim;
 function startGkAnim() {
-  const pitch = document.getElementById('pitch');
   const gk = document.getElementById('gk');
   const maxX = 95;
-
   function move() {
     gkX += gkDir * gkSpeed;
     if (gkX > maxX)  { gkX = maxX;  gkDir = -1; }
@@ -472,14 +557,47 @@ function startGkAnim() {
   }
   gkAnim = requestAnimationFrame(move);
 }
-function stopGkAnim() { cancelAnimationFrame(gkAnim); }
 
-// ── AIM ───────────────────────────────────────────────────────────
-const AIM_MAX = 100;
-function moveAim(dir) {
-  if (shooting) return;
-  aimX = Math.max(-AIM_MAX, Math.min(AIM_MAX, aimX + dir * 7));
-  document.getElementById('aim').style.left = `calc(50% + ${aimX}px)`;
+// ── DEFENDERS ─────────────────────────────────────────────────────
+function spawnDefenders() {
+  const pitch = document.getElementById('pitch');
+  const count = levelCfg.defenders;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'defender';
+    el.textContent = '🛡️';
+    el.style.top = (130 + i * 55) + 'px';
+    el.style.left = '50%';
+    pitch.appendChild(el);
+    const startX = (i === 0 ? -40 : 40);
+    defenders.push({ el, x: startX, dir: (i % 2 === 0 ? 1 : -1), speed: levelCfg.defSpeed });
+    el.style.left = `calc(50% + ${startX}px)`;
+  }
+}
+
+function clearDefenders() {
+  defenders.forEach(d => d.el.remove());
+  defenders = [];
+}
+
+function startDefAnim() {
+  if (levelCfg.defenders === 0) return;
+  const maxX = 80;
+  function move() {
+    defenders.forEach(d => {
+      d.x += d.dir * d.speed;
+      if (d.x > maxX)  { d.x = maxX;  d.dir = -1; }
+      if (d.x < -maxX) { d.x = -maxX; d.dir =  1; }
+      d.el.style.left = `calc(50% + ${d.x}px)`;
+    });
+    defAnim = requestAnimationFrame(move);
+  }
+  defAnim = requestAnimationFrame(move);
+}
+
+function stopAnims() {
+  cancelAnimationFrame(gkAnim);
+  cancelAnimationFrame(defAnim);
 }
 
 // ── SHOOT ─────────────────────────────────────────────────────────
@@ -489,86 +607,112 @@ function shoot() {
   shots--;
   playKick();
 
-  const ball = document.getElementById('ball');
-  const pitch = document.getElementById('pitch');
-  const ph = pitch.offsetHeight;
+  const pitch   = document.getElementById('pitch');
+  const ball    = document.getElementById('ball');
+  const pw      = pitch.offsetWidth;
+  const ph      = pitch.offsetHeight;
 
-  // Target position (goal area is at top 20px, 260px wide centered)
-  const targetLeft = 50 + (aimX / pitch.offsetWidth) * 90;
-  const targetBottom = ph - 80;
+  // Target: interpolate aim into pixel position
+  const targetLeft = 50 + aimX * 40; // % of pitch width
+  // aimY=0 → top of goal (ph - ~goal height), aimY=1 → just above ground
+  const goalTopPx = 18 + GOAL_H * aimY;
+  const targetBottom = ph - goalTopPx;
 
   ball.style.transition = 'left .55s cubic-bezier(.4,0,.2,1), bottom .55s cubic-bezier(.4,0,.2,1), transform .55s, font-size .55s';
-  ball.style.left = targetLeft + '%';
+  ball.style.left   = targetLeft + '%';
   ball.style.bottom = targetBottom + 'px';
   ball.style.transform = 'translateX(-50%) rotate(360deg)';
-  ball.style.fontSize = '1.4rem';
+  ball.style.fontSize  = '1.2rem';
 
   setTimeout(() => checkResult(), 580);
 }
 
+// ── RESULT ────────────────────────────────────────────────────────
 function checkResult() {
   const pitch = document.getElementById('pitch');
   const pw = pitch.offsetWidth;
 
-  // Goal post inner bounds (260px wide, centered)
-  const goalLeft  = pw/2 - 130 + 5;
-  const goalRight = pw/2 + 130 - 5;
-  const ballPixX  = pw/2 + aimX;
+  // Ball X pixel
+  const ballPixX = pw/2 + aimX * (pw * 0.4);
 
-  // GK position
-  const gkPixX = pw/2 + gkX;
-  const gkReach = 45;
+  // Goal bounds
+  const goalLeft  = pw/2 - GOAL_W/2 + 5;
+  const goalRight = pw/2 + GOAL_W/2 - 5;
+  const inGoalX   = ballPixX > goalLeft && ballPixX < goalRight;
 
-  const inGoal = ballPixX > goalLeft && ballPixX < goalRight;
-  const gkSaves = Math.abs(ballPixX - gkPixX) < gkReach;
+  // GK covers: his X ± reach, and upper portion of goal based on levelCfg.gkHeight %
+  const gkPixX  = pw/2 + gkX;
+  const gkReach = 40;
+  const gkSaves = Math.abs(ballPixX - gkPixX) < gkReach
+                  && aimY * 100 > (100 - levelCfg.gkHeight); // GK can't reach top shots on high level
 
-  if (inGoal && !gkSaves) {
-    goals++;
-    gkSpeed += 0.6;
-    showFlash('⚽ GOAL !', `${player.name.split(' ').pop().toUpperCase()} MARQUE !`, '#FFD700', '#1a5c1a');
-    playGoal();
-  } else if (!inGoal) {
-    showFlash('😬 RATÉ !', 'Le tir est passé à côté', '#FF6B35', '#1a1a0a');
+  // Defender check
+  let defBlocks = false;
+  defenders.forEach(d => {
+    const dPixX = pw/2 + d.x;
+    if (Math.abs(ballPixX - dPixX) < 38 && aimY > 0.4) defBlocks = true;
+  });
+
+  // Out of goal
+  if (!inGoalX) {
+    showFlash('😬 RATÉ !', 'Hors cadre !', '#FF6B35', '#1a1a0a');
+    playMiss();
+  } else if (defBlocks) {
+    showFlash('🛡️ BLOQUÉ !', 'Le défenseur a tout arrêté !', '#E67E22', '#1a0f0a');
+    playMiss();
+  } else if (gkSaves) {
+    showFlash('🧤 ARRÊTÉ !', 'Le gardien a plongé !', '#3498DB', '#0a1a2a');
     playMiss();
   } else {
-    showFlash('🧤 ARRÊTÉ !', 'Le gardien a tout donné !', '#3498DB', '#0a1a2a');
-    playMiss();
+    goals++;
+    gkSpeed += 0.5;
+    showFlash('⚽ GOAL !', `${player.name.split(' ').pop().toUpperCase()} MARQUE !`, '#FFD700', '#1a5c1a');
+    playGoal();
   }
 
   updateHUD();
   setTimeout(() => {
     clearFlash();
-    if (shots <= 0) {
-      setTimeout(endGame, 400);
-    } else {
-      resetBall();
-    }
-  }, 1600);
+    if (shots <= 0) setTimeout(endGame, 400);
+    else resetBall();
+  }, 1700);
 }
 
-// ── END GAME ──────────────────────────────────────────────────────
+// ── END ───────────────────────────────────────────────────────────
 function endGame() {
-  stopGkAnim();
+  stopAnims();
   stopKeyLoop();
-  const win = goals >= 3;
-  const el = document.getElementById('end');
+  const needed = levelCfg.needGoals;
+  const win    = goals >= needed;
   document.getElementById('end-title').textContent = win ? '🏆 VICTOIRE !' : '😢 PERDU';
-  document.getElementById('end-score').textContent = `${goals} / 5 buts marqués`;
-  el.classList.add('show');
-  if (win) { for(let i=0;i<20;i++) spawnStar(); playWin(); }
+  document.getElementById('end-score').textContent = `${goals} / 5 buts · niveau ${levelCfg.badge} ${levelCfg.name}`;
+
+  const nextBtn = document.getElementById('btn-next-lvl');
+  const lvlUpEl = document.getElementById('end-level-up');
+  if (win && level < 4) {
+    nextBtn.style.display = 'block';
+    lvlUpEl.style.display = 'block';
+    nextBtn.textContent = `⬆ ${LEVELS[level+1].badge} ${LEVELS[level+1].name}`;
+  } else {
+    nextBtn.style.display = 'none';
+    lvlUpEl.style.display = 'none';
+  }
+
+  document.getElementById('end').classList.add('show');
+  if (win) { for(let i=0;i<18;i++) spawnStar(); playWin(); }
 }
 
 function spawnStar() {
   const s = document.createElement('div');
   s.className = 'star-fall';
   s.textContent = ['⭐','🌟','✨','🎉','🎊'][Math.floor(Math.random()*5)];
-  s.style.left = Math.random()*100 + '%';
+  s.style.left  = Math.random()*100 + '%';
   s.style.animationDelay = Math.random()*1.2 + 's';
   document.getElementById('end').appendChild(s);
   setTimeout(() => s.remove(), 3000);
 }
 
-// ── HUD ───────────────────────────────────────────────────────────
+// ── HUD UPDATE ────────────────────────────────────────────────────
 function updateHUD() {
   document.getElementById('hud-goals').textContent = goals;
   const hearts = Array(shots).fill('❤️').join('') + Array(5-shots).fill('🖤').join('');
@@ -587,54 +731,56 @@ function showFlash(msg, sub, color, bg) {
 function clearFlash() { document.getElementById('flash').classList.remove('show'); }
 
 // ── KEYS ──────────────────────────────────────────────────────────
-let keyState = {};
+const keys = {};
 let keyLoop;
 function startKeyLoop() {
   clearInterval(keyLoop);
   keyLoop = setInterval(() => {
-    if (keyState['ArrowLeft'])  moveAim(-1);
-    if (keyState['ArrowRight']) moveAim(1);
+    if (keys['ArrowLeft'])  moveAim(-1, 0);
+    if (keys['ArrowRight']) moveAim( 1, 0);
+    if (keys['ArrowUp'])    moveAim( 0,-1);
+    if (keys['ArrowDown'])  moveAim( 0, 1);
   }, 16);
 }
 function stopKeyLoop() { clearInterval(keyLoop); }
 
 document.addEventListener('keydown', e => {
-  keyState[e.key] = true;
-  if (e.key === 'ArrowUp' || e.key === ' ') { e.preventDefault(); shoot(); }
+  keys[e.key] = true;
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); shoot(); }
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
 });
-document.addEventListener('keyup', e => { keyState[e.key] = false; });
+document.addEventListener('keyup', e => { keys[e.key] = false; });
 
 // Mobile
-function startMove(dir) { clearInterval(moveInterval); moveInterval = setInterval(() => moveAim(dir), 60); }
-function stopMove()      { clearInterval(moveInterval); }
+function startMove(dx, dy) { clearInterval(moveInterval); moveInterval = setInterval(() => moveAim(dx, dy), 60); }
+function stopMove()         { clearInterval(moveInterval); }
 
 // ── AUDIO ─────────────────────────────────────────────────────────
 const AC = new (window.AudioContext || window.webkitAudioContext)();
-function beep(freq, type, dur, vol=0.3, when=0) {
+function beep(freq, type, dur, vol=.3, when=0) {
   const o = AC.createOscillator(), g = AC.createGain();
   o.connect(g); g.connect(AC.destination);
   o.type = type; o.frequency.value = freq;
   g.gain.setValueAtTime(vol, AC.currentTime + when);
-  g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + when + dur);
+  g.gain.exponentialRampToValueAtTime(.001, AC.currentTime + when + dur);
   o.start(AC.currentTime + when);
   o.stop(AC.currentTime + when + dur);
 }
-function playKick()  { beep(80,'sawtooth',.12,.5); beep(180,'sine',.08,.2,.05); }
-function playGoal()  { [523,659,784,1047].forEach((f,i)=>beep(f,'sine',.25,.35,i*.1)); }
-function playMiss()  { beep(220,'sawtooth',.3,.3); beep(180,'sawtooth',.3,.2,.1); }
-function playWin()   {
-  [[523,.1],[659,.1],[784,.1],[1047,.15],[784,.1],[1047,.4]].forEach(([f,d],i)=>{
-    beep(f,'sine',d,.4,i*.12);
-  });
-}
+function playKick() { beep(80,'sawtooth',.12,.5); beep(180,'sine',.08,.2,.05); }
+function playGoal() { [523,659,784,1047].forEach((f,i) => beep(f,'sine',.25,.35,i*.1)); }
+function playMiss() { beep(220,'sawtooth',.3,.3); beep(180,'sawtooth',.3,.2,.1); }
+function playWin()  { [[523,.1],[659,.1],[784,.1],[1047,.15],[784,.1],[1047,.4]].forEach(([f,d],i) => beep(f,'sine',d,.4,i*.12)); }
 
 // ── UTILS ─────────────────────────────────────────────────────────
-function initials(name) {
-  return name.split(' ').slice(-2).map(w=>w[0]).join('').toUpperCase().slice(0,2);
-}
-function posLabel(pos) {
-  return {GK:'Doelman',DEF:'Verdediger',MID:'Middenvelder',ATT:'Aanvaller'}[pos]||pos;
-}
+function initials(name) { return name.split(' ').slice(-2).map(w => w[0]).join('').toUpperCase().slice(0,2); }
+function posLabel(pos)  { return {GK:'Doelman',DEF:'Verdediger',MID:'Middenvelder',ATT:'Aanvaller'}[pos]||pos; }
+
+// Start key loop when game screen is shown
+const observer = new MutationObserver(() => {
+  if (document.getElementById('s-game').classList.contains('active')) startKeyLoop();
+  else stopKeyLoop();
+});
+observer.observe(document.getElementById('s-game'), { attributes:true, attributeFilter:['class'] });
 </script>
 </body>
 </html>
