@@ -456,12 +456,59 @@ function posLabel(pos) {
   return labels[pos] || pos;
 }
 
+// Wikipedia page names for photo lookup
+const WIKI_NAMES = {
+  'Lamine Yamal':       'Lamine_Yamal',
+  'Pedri':              'Pedri',
+  'Gavi':               'Gavi_(footballer)',
+  'Robert Lewandowski': 'Robert_Lewandowski',
+  'Raphinha':           'Raphinha',
+  'Ferran Torres':      'Ferran_Torres',
+  'Frenkie de Jong':    'Frenkie_de_Jong',
+  'Jules Koundé':       'Jules_Koundé',
+  'Alejandro Balde':    'Alejandro_Balde',
+  'Pau Cubarsí':        'Pau_Cubarsí',
+  'Dani Olmo':          'Dani_Olmo',
+  'Rodri':              'Rodri_(footballer)',
+  'Kevin De Bruyne':    'Kevin_De_Bruyne',
+  'Romelu Lukaku':      'Romelu_Lukaku',
+  'Thibaut Courtois':   'Thibaut_Courtois',
+  'Jeremy Doku':        'Jérémy_Doku',
+  'Leandro Trossard':   'Leandro_Trossard',
+  'Youri Tielemans':    'Youri_Tielemans',
+  'Charles De Ketelaere': 'Charles_De_Ketelaere',
+  'Amadou Onana':       'Amadou_Onana',
+  'Axel Witsel':        'Axel_Witsel',
+  'Hans Vanaken':       'Hans_Vanaken',
+  'Mikel Oyarzabal':    'Mikel_Oyarzabal',
+  'Nico Williams':      'Nico_Williams_(footballer)',
+  'David Raya':         'David_Raya',
+  'Unai Simón':         'Unai_Simón',
+  'Marc Cucurella':     'Marc_Cucurella',
+  'Fabián Ruiz':        'Fabián_Ruiz',
+};
+
+const photoCache = {};
+
+async function fetchWikiPhoto(name) {
+  if (photoCache[name]) return photoCache[name];
+  const wiki = WIKI_NAMES[name];
+  if (!wiki) return null;
+  try {
+    const resp = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${wiki}`);
+    const data = await resp.json();
+    const url = data?.thumbnail?.source;
+    if (url) photoCache[name] = url;
+    return url || null;
+  } catch { return null; }
+}
+
 function renderCards(teamKey) {
   const grid = document.getElementById(`tab-${teamKey}`);
   const players = PLAYERS[teamKey];
   grid.innerHTML = players.map((p, i) => `
     <div class="card" onclick="openModal('${teamKey}',${i})">
-      <div class="card-avatar" style="${avatarStyle(p.color)}">
+      <div class="card-avatar" id="av-${teamKey}-${i}" style="${avatarStyle(p.color)}">
         ${getInitials(p.name)}
       </div>
       <div class="card-body">
@@ -476,6 +523,23 @@ function renderCards(teamKey) {
       </div>
     </div>
   `).join('');
+
+  // Load photos async
+  players.forEach(async (p, i) => {
+    const url = await fetchWikiPhoto(p.name);
+    if (!url) return;
+    const el = document.getElementById(`av-${teamKey}-${i}`);
+    if (el) {
+      el.innerHTML = '';
+      el.style.background = '#111';
+      el.style.padding = '0';
+      const img = document.createElement('img');
+      img.src = url;
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:top;';
+      img.onerror = () => { el.style.background = p.color+'33'; el.textContent = getInitials(p.name); };
+      el.appendChild(img);
+    }
+  });
 }
 
 // ── MODAL ────────────────────────────────────────────────────────────────────
