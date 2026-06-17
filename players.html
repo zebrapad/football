@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚽ Mijn Favoriete Spelers - WK 2026</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #0a1628 0%, #1a3a5c 100%);
+    min-height: 100vh;
+    color: #fff;
+  }
+
+  header {
+    background: linear-gradient(90deg, #CC0001, #FFD700, #003399);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+
+  header h1 { font-size: 1.6rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
+  header a {
+    color: #fff;
+    text-decoration: none;
+    background: rgba(255,255,255,0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+  }
+  header a:hover { background: rgba(255,255,255,0.35); }
+
+  /* WC Schedule Banner */
+  .wc-banner {
+    background: linear-gradient(135deg, #1a472a, #2d6a4f);
+    border-bottom: 3px solid #FFD700;
+    padding: 16px 24px;
+  }
+  .wc-banner h2 { font-size: 1.1rem; margin-bottom: 12px; color: #FFD700; }
+  .schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .schedule-team {
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 12px 14px;
+    border-left: 4px solid;
+  }
+  .schedule-team.belgium { border-color: #CC0001; }
+  .schedule-team.spain   { border-color: #CC0001; }
+  .schedule-team h3 { font-size: 1rem; margin-bottom: 8px; }
+  .match-row {
+    font-size: 0.8rem;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: space-between;
+  }
+  .match-row:last-child { border-bottom: none; }
+  .match-result { color: #FFD700; font-weight: bold; }
+  .match-upcoming { color: #90EE90; }
+
+  /* Team Tabs */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    padding: 20px 24px 0;
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+  }
+  .tab-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.2s;
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.6);
+  }
+  .tab-btn.active {
+    background: #FFD700;
+    color: #000;
+  }
+  .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.2); color: #fff; }
+
+  /* Player Grid */
+  .player-grid {
+    display: none;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    padding: 24px;
+  }
+  .player-grid.active { display: grid; }
+
+  /* Player Card */
+  .card {
+    background: rgba(255,255,255,0.07);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 2px solid transparent;
+    position: relative;
+  }
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+    border-color: #FFD700;
+  }
+  .card.selected {
+    border-color: #FFD700;
+    box-shadow: 0 0 20px rgba(255,215,0,0.5);
+  }
+
+  .card-photo {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    display: block;
+    background: #1a3a5c;
+  }
+  .card-avatar {
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    font-weight: 900;
+    letter-spacing: -2px;
+    color: rgba(255,255,255,0.9);
+    background: var(--avatar-bg, #1a3a5c);
+  }
+
+  .card-body { padding: 10px 12px 12px; }
+  .card-name { font-weight: bold; font-size: 0.95rem; margin-bottom: 4px; }
+  .card-flag-club {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 6px;
+  }
+  .pos-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+  .pos-GK  { background: #FF6B35; color: #fff; }
+  .pos-DEF { background: #3498DB; color: #fff; }
+  .pos-MID { background: #27AE60; color: #fff; }
+  .pos-ATT { background: #E74C3C; color: #fff; }
+
+  .card-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .stat-box {
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    padding: 4px 2px;
+    text-align: center;
+  }
+  .stat-val { font-size: 1rem; font-weight: bold; color: #FFD700; }
+  .stat-lbl { font-size: 0.6rem; color: rgba(255,255,255,0.6); }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: linear-gradient(135deg, #0f2642, #1a3a5c);
+    border-radius: 20px;
+    max-width: 420px;
+    width: 100%;
+    border: 2px solid #FFD700;
+    overflow: hidden;
+    position: relative;
+    animation: popIn 0.25s ease;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+  }
+  .modal-close {
+    position: absolute;
+    top: 12px; right: 14px;
+    background: none; border: none;
+    color: #fff; font-size: 1.6rem;
+    cursor: pointer; z-index: 10;
+    line-height: 1;
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: rgba(0,0,0,0.3);
+  }
+  .modal-avatar {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 900;
+    color: #fff;
+    flex-shrink: 0;
+    border: 3px solid #FFD700;
+  }
+  .modal-name { font-size: 1.3rem; font-weight: bold; }
+  .modal-sub  { font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-top: 4px; }
+  .modal-body { padding: 20px; }
+  .modal-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .modal-stat {
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+  }
+  .modal-stat .val { font-size: 1.6rem; font-weight: bold; color: #FFD700; }
+  .modal-stat .lbl { font-size: 0.7rem; color: rgba(255,255,255,0.65); margin-top: 2px; }
+  .modal-section { margin-top: 14px; }
+  .modal-section h4 { font-size: 0.85rem; color: #FFD700; margin-bottom: 8px; }
+  .modal-match {
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    font-size: 0.82rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-match .date { color: rgba(255,255,255,0.6); font-size: 0.75rem; }
+  .played-badge { background: #888; color: #fff; border-radius: 6px; padding: 1px 6px; font-size: 0.7rem; }
+  .upcoming-badge { background: #2ecc71; color: #fff; border-radius: 6px; padding: 1px 6px; font-size: 0.7rem; }
+
+  @media (max-width: 600px) {
+    .player-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); padding: 12px; }
+    header h1 { font-size: 1.1rem; }
+    .tabs { padding: 12px 12px 0; }
+    .tab-btn { padding: 8px 12px; font-size: 0.85rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚽ Mijn Favoriete Spelers 🏆</h1>
+  <a href="index.html">🎮 Spel spelen</a>
+</header>
+
+<!-- WC 2026 Schedule Banner -->
+<div class="wc-banner">
+  <h2>🏆 FIFA World Cup 2026 — Schema</h2>
+  <div class="schedule-grid">
+    <div class="schedule-team belgium">
+      <h3>🇧🇪 Rode Duivels — Groep G</h3>
+      <div class="match-row">
+        <span>🆚 Egypte — Seattle</span>
+        <span><span class="match-result">1-1</span> <span class="played-badge">Gespeeld</span></span>
+      </div>
+      <div class="match-row">
+        <span>🆚 Iran — Los Angeles</span>
+        <span class="match-upcoming">21 juni 2026</span>
+      </div>
+      <div class="match-row">
+        <span>🆚 Nieuw-Zeeland — Vancouver</span>
+        <span class="match-upcoming">27 juni 2026</span>
+      </div>
+    </div>
+    <div class="schedule-team spain">
+      <h3>🇪🇸 Spanje — Groep H</h3>
+      <div class="match-row">
+        <span>🆚 Kaapverdië — Atlanta</span>
+        <span><span class="match-result">0-0</span> <span class="played-badge">Gespeeld</span></span>
+      </div>
+      <div class="match-row">
+        <span>🆚 Saoedi-Arabië — Atlanta</span>
+        <span class="match-upcoming">21 juni 2026</span>
+      </div>
+      <div class="match-row">
+        <span>🆚 Uruguay — Guadalajara</span>
+        <span class="match-upcoming">26 juni 2026</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('barca')">🔵🔴 FC Barcelona</button>
+  <button class="tab-btn" onclick="showTab('belgium')">🇧🇪 Rode Duivels</button>
+  <button class="tab-btn" onclick="showTab('spain')">🇪🇸 Spanje</button>
+</div>
+
+<!-- Barcelona Players -->
+<div id="tab-barca" class="player-grid active"></div>
+<!-- Belgium Players -->
+<div id="tab-belgium" class="player-grid"></div>
+<!-- Spain Players -->
+<div id="tab-spain" class="player-grid"></div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">×</button>
+    <div class="modal-header">
+      <div class="modal-avatar" id="modal-avatar"></div>
+      <div>
+        <div class="modal-name" id="modal-name"></div>
+        <div class="modal-sub" id="modal-sub"></div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-stats-grid" id="modal-stats"></div>
+      <div class="modal-section">
+        <h4>🏆 WK 2026 Wedstrijden</h4>
+        <div id="modal-matches"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────────────────
+
+const WC_MATCHES = {
+  belgium: [
+    { vs: '🆚 Egypte',      city: 'Seattle',     date: '15 jun',  result: '1-1',  played: true  },
+    { vs: '🆚 Iran',        city: 'Los Angeles', date: '21 jun',  result: null,   played: false },
+    { vs: '🆚 Nieuw-Zeeland', city: 'Vancouver', date: '27 jun',  result: null,   played: false },
+  ],
+  spain: [
+    { vs: '🆚 Kaapverdië',     city: 'Atlanta',      date: '15 jun', result: '0-0', played: true  },
+    { vs: '🆚 Saoedi-Arabië', city: 'Atlanta',      date: '21 jun', result: null,  played: false },
+    { vs: '🆚 Uruguay',       city: 'Guadalajara',  date: '26 jun', result: null,  played: false },
+  ],
+};
+
+// Colors per team for avatars
+const TEAM_COLORS = {
+  barca:   '#A50044',
+  belgium: '#CC0001',
+  spain:   '#C60B1E',
+  other:   '#1a3a5c',
+};
+
+const CC = '#CC0001';
+
+const PLAYERS = {
+  barca: [
+    { name: 'Wojciech Szczęsny', flag: '🇵🇱', country: 'Polen',      club: 'FC Barcelona', pos: 'GK',  matches: 22, goals: 0,  assists: 0, wc: null,    age: 35, color: '#8B4513' },
+    { name: 'Iñaki Peña',        flag: '🇪🇸', country: 'Spanje',     club: 'FC Barcelona', pos: 'GK',  matches: 10, goals: 0,  assists: 0, wc: 'spain', age: 25, color: '#C60B1E' },
+    { name: 'Joan García',       flag: '🇪🇸', country: 'Spanje',     club: 'FC Barcelona', pos: 'GK',  matches: 8,  goals: 0,  assists: 0, wc: 'spain', age: 23, color: '#C60B1E' },
+    { name: 'Jules Koundé',      flag: '🇫🇷', country: 'Frankrijk',  club: 'FC Barcelona', pos: 'DEF', matches: 28, goals: 2,  assists: 3, wc: null,    age: 26, color: '#003189' },
+    { name: 'Pau Cubarsí',       flag: '🇪🇸', country: 'Spanje',     club: 'FC Barcelona', pos: 'DEF', matches: 32, goals: 1,  assists: 1, wc: 'spain', age: 18, color: '#C60B1E' },
+    { name: 'Andreas Christensen',flag:'🇩🇰', country: 'Denemarken', club: 'FC Barcelona', pos: 'DEF', matches: 14, goals: 0,  assists: 0, wc: null,    age: 29, color: '#C8102E' },
+    { name: 'Alejandro Balde',   flag: '🇪🇸', country: 'Spanje',     club: 'FC Barcelona', pos: 'DEF', matches: 26, goals: 1,  assists: 4, wc: 'spain', age: 21, color: '#C60B1E' },
+    { name: 'Eric García',       flag: '🇪🇸', country: 'Spanje',     club: 'FC Barcelona', pos: 'DEF', matches: 20, goals: 1,  assists: 1, wc: 'spain', age: 24, color: '#C60B1E' },
+    { name: 'Pedri',             flag: '🇪🇸', country: 'Spanje',     club: 'FC Barcelona', pos: 'MID', matches: 34, goals: 9,  assists: 9, wc: 'spain', age: 22, color: '#C60B1E' },
+    { name: 'Gavi',              flag: '🇪🇸', country: 'Spanje',     club: 'FC Barcelona', pos: 'MID', matches: 29, goals: 4,  assists: 6, wc: 'spain', age: 20, color: '#C60B1E' },
+    { name: 'Frenkie de Jong',   flag: '🇳🇱', country: 'Nederland',  club: 'FC Barcelona', pos: 'MID', matches: 24, goals: 3,  assists: 5, wc: null,    age: 28, color: '#FF6600' },
+    { name: 'Marc Casadó',       flag: '🇪🇸', country: 'Spanje',     club: 'FC Barcelona', pos: 'MID', matches: 30, goals: 2,  assists: 3, wc: 'spain', age: 21, color: '#C60B1E' },
+    { name: 'Dani Olmo',         flag: '🇪🇸', country: 'Spanje',     club: 'FC Barcelona', pos: 'MID', matches: 28, goals: 8,  assists: 7, wc: 'spain', age: 27, color: '#C60B1E' },
+    { name: 'Lamine Yamal',      flag: '🇪🇸', country: 'Spanje',     club: 'FC Barcelona', pos: 'ATT', matches: 38, goals: 16, assists: 11,wc: 'spain', age: 17, color: '#C60B1E' },
+    { name: 'Raphinha',          flag: '🇧🇷', country: 'Brazilië',   club: 'FC Barcelona', pos: 'ATT', matches: 36, goals: 14, assists: 10,wc: null,    age: 28, color: '#009C3B' },
+    { name: 'Ferran Torres',     flag: '🇪🇸', country: 'Spanje',     club: 'FC Barcelona', pos: 'ATT', matches: 35, goals: 16, assists: 6, wc: 'spain', age: 25, color: '#C60B1E' },
+    { name: 'Robert Lewandowski',flag: '🇵🇱', country: 'Polen',      club: 'FC Barcelona', pos: 'ATT', matches: 36, goals: 25, assists: 8, wc: null,    age: 38, color: '#DC143C' },
+  ],
+  belgium: [
+    { name: 'Thibaut Courtois',     flag: '🇧🇪', country: 'België',  club: 'Real Madrid',   pos: 'GK',  matches: 101, goals: 0,  assists: 0, wc: 'belgium', age: 32, color: CC },
+    { name: 'Senne Lammens',        flag: '🇧🇪', country: 'België',  club: 'Manchester Utd',pos: 'GK',  matches: 5,   goals: 0,  assists: 0, wc: 'belgium', age: 24, color: CC },
+    { name: 'Timothy Castagne',     flag: '🇧🇪', country: 'België',  club: 'Fulham',        pos: 'DEF', matches: 62,  goals: 2,  assists: 4, wc: 'belgium', age: 29, color: CC },
+    { name: 'Zeno Debast',          flag: '🇧🇪', country: 'België',  club: 'Sporting CP',   pos: 'DEF', matches: 25,  goals: 1,  assists: 1, wc: 'belgium', age: 21, color: CC },
+    { name: 'Arthur Theate',        flag: '🇧🇪', country: 'België',  club: 'Eintracht Fr.', pos: 'DEF', matches: 28,  goals: 2,  assists: 2, wc: 'belgium', age: 24, color: CC },
+    { name: 'Brandon Mechele',      flag: '🇧🇪', country: 'België',  club: 'Club Brugge',   pos: 'DEF', matches: 18,  goals: 1,  assists: 0, wc: 'belgium', age: 32, color: CC },
+    { name: 'Thomas Meunier',       flag: '🇧🇪', country: 'België',  club: 'Lille',         pos: 'DEF', matches: 84,  goals: 6,  assists: 8, wc: 'belgium', age: 33, color: CC },
+    { name: 'Kevin De Bruyne',      flag: '🇧🇪', country: 'België',  club: 'Napoli',        pos: 'MID', matches: 106, goals: 26, assists: 45,wc: 'belgium', age: 35, color: CC },
+    { name: 'Youri Tielemans',      flag: '🇧🇪', country: 'België',  club: 'Aston Villa',   pos: 'MID', matches: 87,  goals: 17, assists: 12,wc: 'belgium', age: 28, color: CC },
+    { name: 'Amadou Onana',         flag: '🇧🇪', country: 'België',  club: 'Aston Villa',   pos: 'MID', matches: 38,  goals: 4,  assists: 3, wc: 'belgium', age: 23, color: CC },
+    { name: 'Hans Vanaken',         flag: '🇧🇪', country: 'België',  club: 'Club Brugge',   pos: 'MID', matches: 70,  goals: 13, assists: 11,wc: 'belgium', age: 32, color: CC },
+    { name: 'Axel Witsel',          flag: '🇧🇪', country: 'België',  club: 'Girona',        pos: 'MID', matches: 130, goals: 12, assists: 7, wc: 'belgium', age: 36, color: CC },
+    { name: 'Romelu Lukaku',        flag: '🇧🇪', country: 'België',  club: 'Napoli',        pos: 'ATT', matches: 110, goals: 77, assists: 18,wc: 'belgium', age: 31, color: CC },
+    { name: 'Jeremy Doku',          flag: '🇧🇪', country: 'België',  club: 'Manchester City',pos:'ATT',  matches: 45,  goals: 8,  assists: 10,wc: 'belgium', age: 23, color: CC },
+    { name: 'Charles De Ketelaere', flag: '🇧🇪', country: 'België',  club: 'Atalanta',      pos: 'ATT', matches: 48,  goals: 11, assists: 9, wc: 'belgium', age: 24, color: CC },
+    { name: 'Leandro Trossard',     flag: '🇧🇪', country: 'België',  club: 'Arsenal',       pos: 'ATT', matches: 68,  goals: 16, assists: 14,wc: 'belgium', age: 30, color: CC },
+    { name: 'Dodi Lukebakio',       flag: '🇧🇪', country: 'België',  club: 'Benfica',       pos: 'ATT', matches: 42,  goals: 12, assists: 7, wc: 'belgium', age: 27, color: CC },
+  ],
+  spain: [
+    { name: 'Unai Simón',       flag: '🇪🇸', country: 'Spanje', club: 'Athletic Club', pos: 'GK',  matches: 44, goals: 0,  assists: 0, wc: 'spain', age: 27, color: '#C60B1E' },
+    { name: 'David Raya',       flag: '🇪🇸', country: 'Spanje', club: 'Arsenal',       pos: 'GK',  matches: 18, goals: 0,  assists: 0, wc: 'spain', age: 29, color: '#C60B1E' },
+    { name: 'Marc Cucurella',   flag: '🇪🇸', country: 'Spanje', club: 'Chelsea',       pos: 'DEF', matches: 36, goals: 1,  assists: 2, wc: 'spain', age: 26, color: '#C60B1E' },
+    { name: 'Pau Cubarsí',      flag: '🇪🇸', country: 'Spanje', club: 'FC Barcelona', pos: 'DEF', matches: 32, goals: 1,  assists: 1, wc: 'spain', age: 18, color: '#C60B1E' },
+    { name: 'Alejandro Grimaldo',flag:'🇪🇸', country: 'Spanje', club: 'Bayer Leverkusen',pos:'DEF',matches: 30, goals: 3,  assists: 7, wc: 'spain', age: 29, color: '#C60B1E' },
+    { name: 'Eric García',      flag: '🇪🇸', country: 'Spanje', club: 'FC Barcelona', pos: 'DEF', matches: 20, goals: 1,  assists: 1, wc: 'spain', age: 24, color: '#C60B1E' },
+    { name: 'Pedro Porro',      flag: '🇪🇸', country: 'Spanje', club: 'Tottenham',     pos: 'DEF', matches: 22, goals: 2,  assists: 3, wc: 'spain', age: 26, color: '#C60B1E' },
+    { name: 'Rodri',            flag: '🇪🇸', country: 'Spanje', club: 'Manchester City',pos:'MID',  matches: 48, goals: 7,  assists: 8, wc: 'spain', age: 26, color: '#C60B1E' },
+    { name: 'Pedri',            flag: '🇪🇸', country: 'Spanje', club: 'FC Barcelona', pos: 'MID', matches: 34, goals: 9,  assists: 9, wc: 'spain', age: 22, color: '#C60B1E' },
+    { name: 'Gavi',             flag: '🇪🇸', country: 'Spanje', club: 'FC Barcelona', pos: 'MID', matches: 29, goals: 4,  assists: 6, wc: 'spain', age: 20, color: '#C60B1E' },
+    { name: 'Fabián Ruiz',      flag: '🇪🇸', country: 'Spanje', club: 'PSG',           pos: 'MID', matches: 40, goals: 6,  assists: 7, wc: 'spain', age: 28, color: '#C60B1E' },
+    { name: 'Martín Zubimendi', flag: '🇪🇸', country: 'Spanje', club: 'Arsenal',       pos: 'MID', matches: 25, goals: 2,  assists: 3, wc: 'spain', age: 26, color: '#C60B1E' },
+    { name: 'Dani Olmo',        flag: '🇪🇸', country: 'Spanje', club: 'FC Barcelona', pos: 'MID', matches: 28, goals: 8,  assists: 7, wc: 'spain', age: 27, color: '#C60B1E' },
+    { name: 'Lamine Yamal',     flag: '🇪🇸', country: 'Spanje', club: 'FC Barcelona', pos: 'ATT', matches: 38, goals: 16, assists: 11,wc: 'spain', age: 17, color: '#C60B1E' },
+    { name: 'Ferran Torres',    flag: '🇪🇸', country: 'Spanje', club: 'FC Barcelona', pos: 'ATT', matches: 35, goals: 16, assists: 6, wc: 'spain', age: 25, color: '#C60B1E' },
+    { name: 'Mikel Oyarzabal',  flag: '🇪🇸', country: 'Spanje', club: 'Real Sociedad', pos: 'ATT', matches: 36, goals: 14, assists: 5, wc: 'spain', age: 28, color: '#C60B1E' },
+    { name: 'Nico Williams',    flag: '🇪🇸', country: 'Spanje', club: 'Athletic Club', pos: 'ATT', matches: 30, goals: 10, assists: 8, wc: 'spain', age: 22, color: '#C60B1E' },
+    { name: 'Yeremy Pino',      flag: '🇪🇸', country: 'Spanje', club: 'Villarreal',    pos: 'ATT', matches: 22, goals: 6,  assists: 4, wc: 'spain', age: 22, color: '#C60B1E' },
+  ],
+};
+
+// Fix: replace CC constant with actual color
+const CC = '#CC0001';
+PLAYERS.belgium.forEach(p => { if(p.color === CC || p.color === 'CC') p.color = '#CC0001'; });
+
+// ── AVATAR GENERATION ────────────────────────────────────────────────────────
+
+function getInitials(name) {
+  return name.split(' ').slice(-2).map(w => w[0]).join('').toUpperCase().slice(0,2);
+}
+
+function avatarStyle(color) {
+  return `background: ${color || '#1a3a5c'};`;
+}
+
+// ── RENDER CARDS ─────────────────────────────────────────────────────────────
+
+function posLabel(pos) {
+  const labels = { GK: 'Doelman', DEF: 'Verdediger', MID: 'Middenvelder', ATT: 'Aanvaller' };
+  return labels[pos] || pos;
+}
+
+function renderCards(teamKey) {
+  const grid = document.getElementById(`tab-${teamKey}`);
+  const players = PLAYERS[teamKey];
+  grid.innerHTML = players.map((p, i) => `
+    <div class="card" onclick="openModal('${teamKey}',${i})">
+      <div class="card-avatar" style="${avatarStyle(p.color)}">
+        ${getInitials(p.name)}
+      </div>
+      <div class="card-body">
+        <div class="card-name">${p.name}</div>
+        <div class="card-flag-club">${p.flag} ${p.country} · ${p.club}</div>
+        <span class="pos-badge pos-${p.pos}">${posLabel(p.pos)}</span>
+        <div class="card-stats">
+          <div class="stat-box"><div class="stat-val">${p.matches}</div><div class="stat-lbl">Wedstr.</div></div>
+          <div class="stat-box"><div class="stat-val">${p.goals}</div><div class="stat-lbl">Goals</div></div>
+          <div class="stat-box"><div class="stat-val">${p.assists}</div><div class="stat-lbl">Assists</div></div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── MODAL ────────────────────────────────────────────────────────────────────
+
+function openModal(teamKey, idx) {
+  const p = PLAYERS[teamKey][idx];
+  document.getElementById('modal-avatar').style = avatarStyle(p.color);
+  document.getElementById('modal-avatar').textContent = getInitials(p.name);
+  document.getElementById('modal-name').textContent = p.name;
+  document.getElementById('modal-sub').innerHTML = `
+    ${p.flag} ${p.country} &nbsp;·&nbsp; ${p.club} &nbsp;·&nbsp; ${p.age} jaar
+  `;
+
+  document.getElementById('modal-stats').innerHTML = `
+    <div class="modal-stat"><div class="val">${p.matches}</div><div class="lbl">Wedstrijden</div></div>
+    <div class="modal-stat"><div class="val">${p.goals}</div><div class="lbl">Goals</div></div>
+    <div class="modal-stat"><div class="val">${p.assists}</div><div class="lbl">Assists</div></div>
+  `;
+
+  const wc = p.wc ? WC_MATCHES[p.wc] : null;
+  const matchesHTML = wc
+    ? wc.map(m => `
+        <div class="modal-match">
+          <div>
+            <div>${m.vs}</div>
+            <div class="date">📍 ${m.city} — ${m.date} 2026</div>
+          </div>
+          ${m.played
+            ? `<span class="played-badge">⚽ ${m.result}</span>`
+            : `<span class="upcoming-badge">Komend</span>`}
+        </div>
+      `).join('')
+    : '<div style="color:rgba(255,255,255,0.5);font-size:0.85rem;">Niet gekwalificeerd voor WK 2026</div>';
+
+  document.getElementById('modal-matches').innerHTML = matchesHTML;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal'))
+    document.getElementById('modal').classList.remove('open');
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+
+function showTab(key) {
+  document.querySelectorAll('.player-grid').forEach(g => g.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`tab-${key}`).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+
+renderCards('barca');
+renderCards('belgium');
+renderCards('spain');
+</script>
+</body>
+</html>
